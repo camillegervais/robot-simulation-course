@@ -51,6 +51,7 @@ simulation = FleetSimulation(fleet, t0=0.0, tf=10.0, dt=Ts)
 simulation_drone = FleetSimulation(fleet_RMTT, t0=0.0, tf=10.0, dt=Ts)
 formation_finished = False
 forward_finished = False
+dance_finished = False
 # simulation loop
 
 
@@ -66,8 +67,12 @@ for t in simulation.t:
     if not forward_finished:
         vx ,vy, forward_finished = control_algo.forward(t, N, robots_poses, np.array([[0.2,0],[0.,0],[0.,0],[0.,0]]), distance=2   )  # <= MODIFY CONTROL LAW IN "control_algo.py"
         
-    elif forward_finished and not formation_finished:
-        vx, vy, formation_finished = control_algo.formation(t, N, robots_poses, np.array([[0.2,0],[0.,0],[0.,0],[0.,0]]), distance=2   )  # <= MODIFY CONTROL LAW IN "control_algo.py"
+    elif not formation_finished:
+        vx, vy, formation_finished = control_algo.formation(t, N, robots_poses, np.array([[0,0],[0,0.4],[0.4,0.2],[0,-0.4]] ), np.array([[0.2,0],[0.,0],[0.,0],[0.,0]]), distance=5   )  # <= MODIFY CONTROL LAW IN "control_algo.py"
+
+    elif not dance_finished:
+        vx, vy, dance_finished = control_algo.formation(t, N, robots_poses, np.array([[0,0],[0,0.4],[0.4,0],[0,-0.4]] ), np.array([[0.2,0],[0.,0],[0.,0],[0.,0]]), distance=6   )
+    
         
     # elif formation_finished:
     #     print("Formation finished")   

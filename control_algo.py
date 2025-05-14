@@ -18,6 +18,7 @@ author: Sylvain Bertrand, 2023
 
 import numpy as np
 import math
+import random
 
 
 
@@ -116,7 +117,7 @@ def forward(t, robotNo, robots_poses, robots_velocities,distance=1.5):
 # =============================================================================
 
 # =============================================================================
-def formation(t, robotNo, robots_poses, robots_velocities,distance=1.5):
+def formation(t, robotNo, robots_poses, r_ref, robots_velocities,distance=1.5):
 # =============================================================================  
 
     # --- example of modification of global variables ---
@@ -146,8 +147,12 @@ def formation(t, robotNo, robots_poses, robots_velocities,distance=1.5):
         
         firstCall = False
     
-    kL = 2.0 # gain of the leader follower control law
-    kF = 10.0 # gain of the formation control law
+    kL = 5 # gain of the leader follower control law
+    kF = 9 # gain of the formation control law
+    kR = 3 # gain of the distance control law
+    avoidance_radius = 0.4 # radius of the avoidance control law
+
+    max_speed = 5 # maximum speed of the robots
     
 
     X = robots_poses[:,0:2]
@@ -158,7 +163,7 @@ def formation(t, robotNo, robots_poses, robots_velocities,distance=1.5):
 
     # print("X_ref : ",X_ref)
     X_d_ref = np.array([[0,0],[0,0],[0,0],[0,0]]) # reference velocity of the leader
-    r_ref = np.array([[0,0],[0,0.4],[0.4,0],[0,-0.4]] ) # reference distance between the followers and the leader
+    r_ref = r_ref # reference distance between the followers and the leader
     r_d_ref = np.array([[0,0],[0,0],[0,0],[0,0]]) # reference velocity of the distance between the robots
     # get positions of all robots
     
@@ -169,6 +174,9 @@ def formation(t, robotNo, robots_poses, robots_velocities,distance=1.5):
             u[i,:] = -kL*(X[i,:] - X_ref[i,:]) + X_d_ref[i,:]
         else:
             u[i,:] = -kF*( (X[i,:] - X[0,:]) - r_ref[i,:]) + X_d[0,:] + r_d_ref[i,:]
+        for j in range(N):
+            if np.linalg.norm(X[i,:] - X[j,:]) < avoidance_radius ** 2 and i != j:
+                u[i, :] += kR*(X[i,:] - X[j,:]) / np.linalg.norm(X[i,:] - X[j,:]) * (1 - np.linalg.norm(X[i,:] - X[j,:]) / avoidance_radius**2)**2
     
     # ===================== COMPUTATION OF ui =================================
         
@@ -178,13 +186,15 @@ def formation(t, robotNo, robots_poses, robots_velocities,distance=1.5):
     
     
     # retrieve values from control input vector
+    if np.linalg.norm(u) > max_speed:   
+        u = u/np.linalg.norm(u) * max_speed
     vx = u[:,0]
     vy = u[:,1]
     
     finished = False
     # check if the formation is finished
     for i in range(N):
-        if np.linalg.norm(vx) < 0.01 and np.linalg.norm(vy) < 0.01:
+        if np.linalg.norm(vx) < 0.1 and np.linalg.norm(vy) < 0.1:
             finished = True
             break
     
@@ -192,7 +202,8 @@ def formation(t, robotNo, robots_poses, robots_velocities,distance=1.5):
 # =============================================================================
 
 
-
+def dance(t, robotNo, robots_poses, robots_velocities,distance=1.5):
+    return 0,0,False
 
 
 
