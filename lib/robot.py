@@ -160,9 +160,32 @@ class Fleet:
     # -------------------------------------------------------------------------
     def getPosesArray(self):
     # -------------------------------------------------------------------------
-        poses = np.zeros((self.nbOfRobots, self.robot[0].stateDim))
+        # Déterminer la dimension maximale d'état parmi tous les robots
+        max_state_dim = max(rob.stateDim for rob in self.robot)
+        
+        # Créer un tableau pour stocker les poses avec la dimension maximale
+        poses = np.zeros((self.nbOfRobots, max_state_dim))
+        
+        # Remplir le tableau avec les états des robots
         for i in range(self.nbOfRobots):
-            poses[i,:] = self.robot[i].state
+            robot_state = self.robot[i].state
+            robot_dim = self.robot[i].stateDim
+            
+            # Assurer que robot_state est un array numpy
+            if not isinstance(robot_state, np.ndarray):
+                robot_state = np.array(robot_state)
+            
+            # Convertir en vecteur plat si nécessaire (cas shape (2,1) -> (2,))
+            if len(robot_state.shape) > 1:
+                robot_state = robot_state.flatten()
+            
+            # Copier les dimensions disponibles
+            # S'assurer que nous ne prenons pas plus de dimensions que disponibles
+            dim_to_copy = min(robot_dim, len(robot_state))
+            poses[i,:dim_to_copy] = robot_state[:dim_to_copy]
+            
+            # Si le robot a moins de dimensions que max_state_dim, 
+            # les dimensions manquantes restent à zéro
         
         return poses
 

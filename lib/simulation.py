@@ -79,11 +79,22 @@ class RobotSimulation:
     def addDataFromRobot(self, robot):
     # -------------------------------------------------------------------------
         # store state data
-        for i in range(0,robot.stateDim):    
-            self.state[self.currentIndex,i] = robot.state[i]
+        for i in range(0, robot.stateDim):
+            # Assurer que nous traitons correctement les états qui sont des tableaux
+            if isinstance(robot.state[i], np.ndarray):
+                # Si c'est un array numpy, prendre sa première valeur (scalaire)
+                self.state[self.currentIndex, i] = robot.state[i].item() if robot.state[i].size == 1 else robot.state[i][0]
+            else:
+                # Sinon, utiliser la valeur directement
+                self.state[self.currentIndex, i] = robot.state[i]
+                
         # store ctrl data
-        for i in range(0,robot.ctrlDim):    
-            self.ctrl[self.currentIndex,i] = robot.ctrl[i]
+        for i in range(0, robot.ctrlDim):
+            if isinstance(robot.ctrl[i], np.ndarray):
+                self.ctrl[self.currentIndex, i] = robot.ctrl[i].item() if robot.ctrl[i].size == 1 else robot.ctrl[i][0]
+            else:
+                self.ctrl[self.currentIndex, i] = robot.ctrl[i]
+                
         # increment storage index
         self.currentIndex = self.currentIndex + 1
 
@@ -639,5 +650,5 @@ if __name__=='__main__':
         simulation.plotXY(figNo=3, steps=100, links=True)
         simulation.plotState(figNo=4)
         simulation.plotCtrl(figNo=7)
-        
-    
+
+
