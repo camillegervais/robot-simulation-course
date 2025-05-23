@@ -30,16 +30,21 @@ import random
 # global toto
 
 # Variable pour vérifier le premier appel de chaque fonction
-global firstCall_forward, firstCall_formation, firstCall_dance
+global firstCall_forward, firstCall_formation, firstCall_dance, firstCall_oscillation
 firstCall_forward = True
 firstCall_formation = True
 firstCall_dance = True
+firstCall_oscillation = True
 
 # Variables for derivative correction in formation control
 global prev_errors
 global prev_time
 prev_errors = np.zeros((5, 2))  # Initialisation pour 5 robots
 prev_time = 0.0
+
+# Variable to store the number of robots in the main fleet (needed for drone oscillation)
+global N_fleet1
+N_fleet1 = 5  # Default value, will be updated in the start.py file
 
 
 # =============================================================================
@@ -191,7 +196,7 @@ def formation(t, robotNo, robots_poses, r_ref, robots_velocities,distance=1.5):
     kF = 7     # gain of the formation control law (terme P)
     kD = 0.1   # gain dérivé pour limiter le dépassement (terme D)
     kR = 3     # gain of the distance control law
-    avoidance_radius = 0.4  # radius of the avoidance control law
+    avoidance_radius = 0.6  # radius of the avoidance control law
 
     max_speed = 5  # maximum speed of the robots
     
@@ -244,7 +249,8 @@ def formation(t, robotNo, robots_poses, r_ref, robots_velocities,distance=1.5):
             current_errors[i,:] = error
             
             # Calcul du terme dérivé (vitesse de l'erreur)
-            error_derivative = (error - prev_errors[i,:]) / dt
+            # error_derivative = (error - prev_errors[i,:]) / dt
+            error_derivative = 0
             
             # Correction PD pour le leader
             u[i,:] = -kL * error - kD * error_derivative + X_d_ref[i,:]
@@ -264,9 +270,9 @@ def formation(t, robotNo, robots_poses, r_ref, robots_velocities,distance=1.5):
             # Correction PD pour les followers
             # Note: on ajoute X_d[0,:] pour que les followers suivent la vitesse du leader
             u[i,:] = -kF * error - kD * error_derivative + X_d[0,:] + r_d_ref[i,:]
-        
-        # Appliquer l'évitement de collision pour tous sauf le waffle
-        if i != N-1:
+          # Appliquer l'évitement de collision pour tous les followers (sauf le waffle)
+        # Le DCA (i=0) ne subit pas de répulsion, ce sont les autres robots qui doivent l'éviter
+        if i != 0 and i != N-1:  # Ni le leader (DCA) ni le waffle
             for j in range(N):
                 if np.linalg.norm(X[i,:] - X[j,:]) < avoidance_radius ** 2 and i != j:
                     u[i, :] += kR*(X[i,:] - X[j,:]) / np.linalg.norm(X[i,:] - X[j,:]) * (1 - np.linalg.norm(X[i,:] - X[j,:]) / avoidance_radius**2)**2
@@ -400,6 +406,100 @@ def dance(t, robotNo, robots_poses, robots_velocities, distance=1.5):
     
     return vx, vy, finished
 
+
+# =============================================================================
+def drone_oscillation(t, robotNo, robots_poses, robots_velocities, oscillation_start_time=0, distance=1.5):
+# =============================================================================  
+    # --- example of modification of global variables ---
+    global firstCall_oscillation
+    
+    # number of robots (short notation)
+    N = robots_poses.shape[0]
+    
+    # control law
+    vx = np.zeros(N)
+    vy = np.zeros(N)
+    
+    # Vérifier le premier appel de la fonction
+    if 'firstCall_oscillation' not in globals():
+        global firstCall_oscillation
+        firstCall_oscillation = True
+    
+    if (firstCall_oscillation):  # print information (only once)
+        print("Starting drone oscillation phase above waffle robot")
+        firstCall_oscillation = False
+    
+    # Position du waffle (dernier robot de la flotte principale)
+    waffle_idx = 4  # Index du robot waffle (5ème robot, indice 4)
+    waffle_position = robots_poses[waffle_idx, 0:2]
+    
+    # Position actuelle du drone RMTT
+    rmtt_idx = N_fleet1  # Le drone est juste après la flotte principale
+    drone_position = robots_poses[rmtt_idx, 0:2]
+    
+    # Paramètres de l'oscillation
+    amplitude = 1  # Amplitude de l'oscillation en mètres
+    frequency = 0.8  # Fréquence de l'oscillation en Hz
+    
+    # Temps relatif depuis le début de l'oscillation
+    relative_time = t - oscillation_start_time
+    
+    # Nombre de cycles complets pour terminer (2 oscillations)
+    num_cycles = 5
+    cycle_duration = 1.0 / frequency  # Durée d'un cycle complet
+    total_oscillation_time = num_cycles * cycle_duration
+    
+    # Vérifier si les deux oscillations sont terminées
+    oscillations_complete = relative_time >= total_oscillation_time
+    
+    # Position cible du drone
+    if not oscillations_complete:
+        # Pendant l'oscillation: au-dessus du waffle avec oscillation sinusoïdale en x
+        target_x = waffle_position[0] + amplitude * np.sin(2 * np.pi * frequency * relative_time)
+        target_y = waffle_position[1]
+    else:
+        # À la fin des oscillations: retour à la position initiale (au-dessus du waffle sans oscillation)
+        target_x = waffle_position[0]
+        target_y = waffle_position[1]
+    
+    target_position = np.array([target_x, target_y])
+    
+    # Contrôle proportionnel pour atteindre la position cible
+    kp = 3.0  # Gain proportionnel
+    
+    # Pour tous les robots
+    for i in range(N):
+        if i == rmtt_idx:  # Seulement pour le drone RMTT
+            # Différence entre position cible et position actuelle
+            error = target_position - drone_position
+            
+            # Appliquer un contrôle proportionnel
+            u_drone = kp * error
+            
+            # Limiter la vitesse maximale
+            max_speed = 2.0
+            speed = np.linalg.norm(u_drone)
+            if speed > max_speed:
+                u_drone = u_drone / speed * max_speed
+            
+            # Assigner les vitesses au drone
+            vx[i] = u_drone[0]
+            vy[i] = u_drone[1]
+            print(vx[i], vy[i])
+        else:
+            # Tous les autres robots restent immobiles
+            vx[i] = 0.0
+            vy[i] = 0.0
+    
+    # Vérifier si la phase d'oscillation est terminée:
+    # 1. Les oscillations sont terminées
+    # 2. Le drone est retourné près de sa position cible finale (au-dessus du waffle)
+    finished = oscillations_complete and np.linalg.norm(error) < 2
+    
+    if finished:
+        print("Drone oscillation phase complete - returning to normal operation")
+    
+    return vx, vy, finished
 
 
 # general template of a function defining a control law

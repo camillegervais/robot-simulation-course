@@ -88,7 +88,7 @@ for i, robot_id in enumerate(combined_ids):
 # sampling period for simulation
 Ts = 0.01
 # create simulation avec la flotte combinée
-combined_simulation = FleetSimulation(combined_fleet, t0=0.0, tf=25.0, dt=Ts)
+combined_simulation = FleetSimulation(combined_fleet, t0=0.0, tf=10.0, dt=Ts)
 
 # Variables d'état pour la simulation
 formation_finished = False
@@ -98,7 +98,6 @@ dance_finished = False
 oscillation_finished = False
 pause_timer = 0
 oscillation_start_time = 0
-pause_duration = 5.0  # Durée de la pause en secondes
 
 # Mettre à jour le nombre de robots dans la flotte principale pour la fonction d'oscillation
 import control_algo
@@ -114,7 +113,8 @@ for t in combined_simulation.t:
     # Tableau pour stocker les vitesses de tous les robots
     vx_all = np.zeros(N)
     vy_all = np.zeros(N)
-      # === Traitement de la flotte principale (robots 0 à 4) ===
+    
+    # === Traitement de la flotte principale (robots 0 à 4) ===
     N_fleet1 = nbRMEP + nbTB3B + nbWaffle
     fleet1_poses = combined_poses[:N_fleet1]
     
@@ -128,24 +128,25 @@ for t in combined_simulation.t:
     elif not formation_finished:
         r_ref_formation = np.zeros((N_fleet1, 2))
         r_ref_formation[1] = [0, 0.4]
-        r_ref_formation[2] = [0.4, 0.2]
+        r_ref_formation[2] = [0.4, 0]
         r_ref_formation[3] = [0, -0.4]
+        
         vx_fleet1, vy_fleet1, formation_finished = control_algo.formation(
             t, N_fleet1, fleet1_poses, r_ref_formation, 
             np.array([[0.2,0] for _ in range(N_fleet1)]), 
-            distance=4
-        )
-    elif not formation_bis_finished:
-        r_ref_formation_bis = np.zeros((N_fleet1, 2))
-        r_ref_formation_bis[1] = [0, 0.4]
-        r_ref_formation_bis[2] = [0.4, 0]
-        r_ref_formation_bis[3] = [0, -0.4]
-        
-        vx_fleet1, vy_fleet1, formation_bis_finished = control_algo.formation(
-            t, N_fleet1, fleet1_poses, r_ref_formation_bis, 
-            np.array([[0.2,0] for _ in range(N_fleet1)]), 
             distance=6
         )
+    # elif not formation_bis_finished:
+    #     r_ref_formation_bis = np.zeros((N_fleet1, 2))
+    #     r_ref_formation_bis[1] = [0, 0.4]
+    #     r_ref_formation_bis[2] = [0.4, 0]
+    #     r_ref_formation_bis[3] = [0, -0.4]
+        
+    #     vx_fleet1, vy_fleet1, formation_bis_finished = control_algo.formation(
+    #         t, N_fleet1, fleet1_poses, r_ref_formation_bis, 
+    #         np.array([[0.2,0] for _ in range(N_fleet1)]), 
+    #         distance=6
+    #     )
     elif not oscillation_finished:
         # Enregistrer le temps de début de l'oscillation
         if pause_timer == 0:
@@ -155,17 +156,17 @@ for t in combined_simulation.t:
         # Phase de pause après la formation avec oscillation du drone
         vx_fleet1 = np.zeros(N_fleet1)  # Tous les robots de la flotte principale sont immobiles
         vy_fleet1 = np.zeros(N_fleet1)
-        
-        # Vérifier si la pause est terminée
-        if t - pause_timer >= pause_duration:
-            oscillation_finished = True
-        
+                
         # Traitement du drone RMTT pour l'oscillation en utilisant la fonction dédiée
-        vx_drone, vy_drone, _ = control_algo.drone_oscillation(
+        all_vx, all_vy, oscillation_finished = control_algo.drone_oscillation(
             t, N_fleet1 + nbRMTT, combined_poses, 
             np.array([[0,0] for _ in range(N)]),
             oscillation_start_time=oscillation_start_time
-        )    
+        )
+        
+        # Extraire uniquement la vitesse du drone RMTT (indice N_fleet1)
+        vx_drone = np.array([all_vx[N_fleet1]])
+        vy_drone = np.array([all_vy[N_fleet1]])
     elif not dance_finished:
         vx_fleet1, vy_fleet1, dance_finished = control_algo.dance(
             t, N_fleet1, fleet1_poses, 
@@ -176,7 +177,9 @@ for t in combined_simulation.t:
         # Tous les robots sont immobiles après toutes les phases
         vx_fleet1 = np.zeros(N_fleet1)
         vy_fleet1 = np.zeros(N_fleet1)
-      # === Traitement des drones (robot 5) ===    # Les drones restent immobiles sauf pendant la phase d'oscillation
+    
+    # === Traitement des drones (robot 5) ===
+    # Les drones restent immobiles sauf pendant la phase d'oscillation
     if not oscillation_finished and formation_bis_finished:
         # Les vitesses du drone sont déjà calculées dans la phase d'oscillation
         pass
@@ -202,8 +205,8 @@ for t in combined_simulation.t:
     vx_all[:N_fleet1] = vx_fleet1
     vy_all[:N_fleet1] = vy_fleet1
     
-    vx_all[N_fleet1:N_fleet1+nbRMTT] = vx_drone[0]
-    vy_all[N_fleet1:N_fleet1+nbRMTT] = vy_drone[0]
+    vx_all[N_fleet1:N_fleet1+nbRMTT] = vx_drone
+    vy_all[N_fleet1:N_fleet1+nbRMTT] = vy_drone
     
     vx_all[start_idx_fleet2:end_idx_fleet2] = vx_fleet2
     vy_all[start_idx_fleet2:end_idx_fleet2] = vy_fleet2
