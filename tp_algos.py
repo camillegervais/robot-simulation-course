@@ -77,8 +77,16 @@ def tb3B_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     nbOBSTACLE = len(obstacle_pose[0]) # number of total obstacle positions in the environment
 
     #  --- TO BE MODIFIED --- 
-    vx = 0.0
-    vy = 0.0
+    if robotNo == 1:    
+        goal = [2,2]
+    if robotNo == 2:    
+        goal = [1,2]
+    if robotNo == 3:
+        goal = [0,2]  
+    if robotNo == 4:
+        goal = [-1,2]  
+    vx = 0.2 * (-robotPose[0] + goal[0])
+    vy = 0.2 * (-robotPose[1] + goal[1])
     # -----------------------
 
     return vx,vy
@@ -100,8 +108,9 @@ def tb3W_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     nbOBSTACLE = len(obstacle_pose[0]) # number of total obstacle positions in the environment
 
     #  --- TO BE MODIFIED --- 
-    vx = 0
-    vy = 0
+    goal = [-1,1]
+    vx = 0.2 * (-robotPose[0] + goal[0])
+    vy = 0.2 * (-robotPose[1] + goal[1])
     # -----------------------
 
     return vx,vy
@@ -125,9 +134,20 @@ def rmtt_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     vx = 0.0
     vy = 0.0
     vz = 0.0
-    time.sleep(5) # sleep for 100ms
     trigger_land = False # trigger to land the drone (True/False)
-    led = (255,0,0) 
+    goal = [1,1,1]
+    ex = goal[0] - robotPose[0]
+    ey = goal[1] - robotPose[1]
+    ez = goal[2] - robotPose[2]
+    if abs(ex) > 0.2 or abs(ey) > 0.2 or abs(ez) > 0.1:
+        vx = 0.5 * ex
+        vy = 0.5 * ey
+        vz = 0.5 * ez
+    else:
+        vx = 0
+        vy = 0
+        vz = 0
+        trigger_land = True
     # -----------------------
 
     return vx,vy,vz,trigger_land,led
@@ -152,6 +172,20 @@ def rmep_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     vx = 0.0
     vy = 0.0
     wz = 0.0
+    goal = [1,1,1.57]
+    ex = goal[0] - robotPose[0]
+    ey = goal[1] - robotPose[1]
+    etheta = goal[2] - robotPose[2]
+    # try to avoid using the wz if possible, not reliable 
+    
+    if abs(ex) > 0.1 or abs(ey) > 0.1 or abs(etheta) > 0.1:
+        vx = 0.3 * ex
+        vy = 0.3 * ey 
+        wz = 0.1 * etheta
+    else:
+        vx = 0.0
+        vy = 0.0
+        wz = 0.0
     # -----------------------
 
     return vx, vy, wz
