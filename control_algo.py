@@ -305,6 +305,7 @@ def dance(t, robotNo, robots_poses, robots_velocities, distance=1.5):
     
     # number of robots (short notation)
     N = robots_poses.shape[0]
+    print("Number of robot dance : ",N)
     
     # control law
     vx = np.zeros(N)
@@ -320,11 +321,11 @@ def dance(t, robotNo, robots_poses, robots_velocities, distance=1.5):
     
     # Paramètres pour la danse circulaire
     radius = 0.6  # rayon du cercle de danse
-    angular_velocity = 0.5  # vitesse de rotation autour du cercle
+    angular_velocity = 1  # vitesse de rotation autour du cercle
     phase_shift = 2 * np.pi / max(1, (N-2))  # décalage de phase adaptable
     
-    # Paramètres pour la force de répulsion
-    repulsion_radius = 0.35  # rayon d'action de la force de répulsion
+    # Paramètres pour la force de répulsion pour la dance
+    repulsion_radius = 0.7  # rayon d'action de la force de répulsion
     repulsion_gain = 2.0  # gain de la force de répulsion
     
     # Initialisation des vitesses
@@ -370,7 +371,7 @@ def dance(t, robotNo, robots_poses, robots_velocities, distance=1.5):
             repulsion_force = np.zeros(2)
             
             # Parcourir tous les autres robots intermédiaires
-            for j in range(1, N-1):  # Indices adaptés à N
+            for j in range(1, N):  # Indices adaptés à N
                 if i != j:  # Ne pas se repousser soi-même
                     # Vecteur de distance entre les deux robots
                     dist_vector = X[i,:] - X[j,:]
@@ -437,7 +438,7 @@ def drone_oscillation(t, robotNo, robots_poses, robots_velocities, oscillation_s
     
     # Paramètres de l'oscillation
     amplitude = 1  # Amplitude de l'oscillation en mètres
-    frequency = 0.8  # Fréquence de l'oscillation en Hz
+    frequency = 1.6  # Fréquence de l'oscillation en Hz
     
     # Temps relatif depuis le début de l'oscillation
     relative_time = t - oscillation_start_time
