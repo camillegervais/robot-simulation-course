@@ -53,6 +53,7 @@
 
 import numpy as np
 import math, time
+import logic
 
 # ==============   "GLOBAL" VARIABLES KNOWN BY ALL THE FUNCTIONS ===================
 # all variables declared here will be known by functions below
@@ -77,16 +78,15 @@ def tb3B_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     nbOBSTACLE = len(obstacle_pose[0]) # number of total obstacle positions in the environment
 
     #  --- TO BE MODIFIED --- 
-    if robotNo == 1:    
-        goal = [2,2]
-    if robotNo == 2:    
-        goal = [1,2]
-    if robotNo == 3:
-        goal = [0,2]  
-    if robotNo == 4:
-        goal = [-1,2]  
-    vx = 0.2 * (-robotPose[0] + goal[0])
-    vy = 0.2 * (-robotPose[1] + goal[1])
+    # robot_id = {0 : 'DCA', 1: 'burger1', 2: 'burger2', 3: 'burger3', 4: 'waffle', 5: 'rmtt', 6: 'DCA_SI', 7: 'Immobile'} 
+
+    all_robots_poses = np.concatenate((tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses), axis=1)
+    if robotNo == 2:
+        vx,vy = logic.control(all_robots_poses, robotNo-1)
+    elif robotNo == 3:
+        vx,vy = logic.control(all_robots_poses, robotNo-1)
+    elif robotNo == 4:
+        vx,vy = logic.control(all_robots_poses, robotNo-1)
     # -----------------------
 
     return vx,vy
@@ -108,9 +108,10 @@ def tb3W_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     nbOBSTACLE = len(obstacle_pose[0]) # number of total obstacle positions in the environment
 
     #  --- TO BE MODIFIED --- 
-    goal = [-1,1]
-    vx = 0.2 * (-robotPose[0] + goal[0])
-    vy = 0.2 * (-robotPose[1] + goal[1])
+    # robot_id = {0 : 'DCA', 1: 'burger1', 2: 'burger2', 3: 'burger3', 4: 'waffle', 5: 'rmtt', 6: 'DCA_SI', 7: 'Immobile'} 
+    all_robots_poses = np.concatenate((tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses), axis=1)
+    if robotNo == 5:
+        vx,vy = logic.control(all_robots_poses, robotNo-1)
     # -----------------------
 
     return vx,vy
@@ -131,23 +132,14 @@ def rmtt_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     nbOBSTACLE = len(obstacle_pose[0]) # number of total obstacle positions in the environment
     led = (0,0,0) # led color (r,g,b) in range [0,255]
     #  --- TO BE MODIFIED ---
-    vx = 0.0
-    vy = 0.0
-    vz = 0.0
-    trigger_land = False # trigger to land the drone (True/False)
-    goal = [1,1,1]
-    ex = goal[0] - robotPose[0]
-    ey = goal[1] - robotPose[1]
-    ez = goal[2] - robotPose[2]
-    if abs(ex) > 0.2 or abs(ey) > 0.2 or abs(ez) > 0.1:
-        vx = 0.5 * ex
-        vy = 0.5 * ey
-        vz = 0.5 * ez
-    else:
-        vx = 0
-        vy = 0
-        vz = 0
-        trigger_land = True
+    # robot_id = {0 : 'DCA', 1: 'burger1', 2: 'burger2', 3: 'burger3', 4: 'waffle', 5: 'rmtt', 6: 'DCA_SI', 7: 'Immobile'} 
+
+    all_robots_poses = np.concatenate((tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses), axis=1)
+    if robotNo == 6:
+        vx,vy,vz,trigger_land = logic.control(all_robots_poses, robotNo-1)
+        # trigger_land = 0: do not land
+        # trigger_land = 1: land
+        # trigger_land = 2: take off
     # -----------------------
 
     return vx,vy,vz,trigger_land,led
@@ -169,24 +161,12 @@ def rmep_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     nbOBSTACLE = len(obstacle_pose[0]) # number of total obstacle positions in the environment
 
     #  --- TO BE MODIFIED ---
-    vx = 0.0
-    vy = 0.0
-    wz = 0.0
-    goal = [1,1,1.57]
-    ex = goal[0] - robotPose[0]
-    ey = goal[1] - robotPose[1]
-    etheta = goal[2] - robotPose[2]
-    # try to avoid using the wz if possible, not reliable 
-    
-    if abs(ex) > 0.1 or abs(ey) > 0.1 or abs(etheta) > 0.1:
-        vx = 0.3 * ex
-        vy = 0.3 * ey 
-        wz = 0.1 * etheta
-    else:
-        vx = 0.0
-        vy = 0.0
-        wz = 0.0
-    # -----------------------
+    # robot_id = {0 : 'DCA', 1: 'burger1', 2: 'burger2', 3: 'burger3', 4: 'waffle', 5: 'rmtt', 6: 'DCA_SI', 7: 'Immobile'} 
+
+    all_robots_poses = np.concatenate((tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses), axis=1)
+    if robotNo == 1:
+        vx,vy = logic.control(all_robots_poses, robotNo-1)
+        wz = 0
 
     return vx, vy, wz
 # ====================================
