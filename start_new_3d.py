@@ -6,6 +6,9 @@ import control_algo_3d
 from lib.mission import plot_mission_background
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import numpy as np
+import matplotlib.pyplot as plt
 
 # number of robots
 # -----------------
@@ -309,78 +312,111 @@ for t in combined_simulation.t:
     combined_fleet.integrateMotion(Ts)
 
 # Define custom 3D animation function
+def draw_pyramid(ax, position, direction, color='red', scale=0.25, alpha=1.0):
+    """
+    Draw a 3D pyramid (arrow/cone) at the given position, oriented along the direction vector.
+    position: (x, y, z)
+    direction: (dx, dy, dz) (will be normalized)
+    """
+    # Normalize direction
+    norm = np.linalg.norm(direction)
+    if norm < 1e-6:
+        direction = np.array([1, 0, 0])  # Default direction if zero
+    else:
+        direction = direction / norm
+    # Pyramid geometry (base in xy-plane, tip along +z)
+    h = scale
+    r = scale * 0.25
+    # Base vertices (square or triangle)
+    base = np.array([
+        [ r,  r, 0],
+        [-r,  r, 0],
+        [-r, -r, 0],
+        [ r, -r, 0]
+    ])
+    tip = np.array([0, 0, h])
+    # Build rotation matrix to align [0,0,1] to direction
+    z_axis = np.array([0, 0, 1])
+    v = np.cross(z_axis, direction)
+    c = np.dot(z_axis, direction)
+    if np.linalg.norm(v) < 1e-6:
+        R = np.eye(3) if c > 0 else -np.eye(3)
+    else:
+        vx = np.array([
+            [0, -v[2], v[1]],
+            [v[2], 0, -v[0]],
+            [-v[1], v[0], 0]
+        ])
+        R = np.eye(3) + vx + vx @ vx * ((1 - c) / (np.linalg.norm(v) ** 2))
+    base_rot = (R @ base.T).T
+    tip_rot = (R @ tip.T).T
+    # Translate to position
+    base_pts = base_rot + position
+    tip_pt = tip_rot + position
+    # Define pyramid faces
+    verts = [
+        [base_pts[0], base_pts[1], tip_pt],
+        [base_pts[1], base_pts[2], tip_pt],
+        [base_pts[2], base_pts[3], tip_pt],
+        [base_pts[3], base_pts[0], tip_pt],
+        [base_pts[0], base_pts[1], base_pts[2], base_pts[3]]  # base
+    ]
+    poly = Poly3DCollection(verts, facecolors=color, edgecolors='k', alpha=alpha)
+    ax.add_collection3d(poly)
+
 def animate_3d():
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
-    
-    # Set the plot limits
     ax.set_xlim([-3, 10])
     ax.set_ylim([-3, 3])
     ax.set_zlim([0, 3])
-    
     ax.set_xlabel('X (m)')
     ax.set_ylabel('Y (m)')
     ax.set_zlabel('Z (m)')
-    
-    # Colors for different robot types
     colors = ['red', 'green', 'blue', 'orange', 'purple', 'cyan', 'brown', 'pink']
-    
-    # Animation loop
-    for i in range(0, len(combined_simulation.t), 5):  # Step every 5 frames for speed
-        ax.clear()
+    legend_handles = []
+    from matplotlib.patches import Patch
+    for i in range(0, len(combined_simulation.t), 5):
+        ax.cla()
         ax.set_xlim([-3, 10])
         ax.set_ylim([-3, 3])
         ax.set_zlim([0, 3])
         ax.set_xlabel('X (m)')
         ax.set_ylabel('Y (m)')
         ax.set_zlabel('Z (m)')
-        
-        # Draw each robot
+        # Draw ground grid
+        x_grid = np.linspace(-3, 10, 14)
+        y_grid = np.linspace(-3, 3, 7)
+        X, Y = np.meshgrid(x_grid, y_grid)
+        Z = np.zeros_like(X)
+        ax.plot_surface(X, Y, Z, color='gray', alpha=0.2)
         for robot_idx in range(combined_fleet.nbOfRobots):
-            # Get robot trajectory up to current time
             x = combined_simulation.robotSimulation[robot_idx].state[:i+1, 0]
             y = combined_simulation.robotSimulation[robot_idx].state[:i+1, 1]
-            
-            # Get z-coordinate or use 0 if 2D robot
             if combined_simulation.robotSimulation[robot_idx].robot.dynamics == 'singleIntegrator3D':
                 z = combined_simulation.robotSimulation[robot_idx].state[:i+1, 2]
             else:
                 z = np.zeros_like(x)
-            
             # Current position
             current_x = x[-1]
             current_y = y[-1]
             current_z = z[-1]
-            
+            # Direction: use last two positions or velocity
+            if len(x) > 1:
+                direction = np.array([x[-1] - x[-2], y[-1] - y[-2], z[-1] - z[-2]])
+            else:
+                direction = np.array([1, 0, 0])
             # Plot trajectory
             ax.plot(x, y, z, color=colors[robot_idx % len(colors)], alpha=0.5)
-            
-            # Plot current position (different marker for each robot type)
-            if robot_idx == 0:  # DCA
-                ax.scatter(current_x, current_y, current_z, color=colors[robot_idx % len(colors)], 
-                          marker='s', s=100, label=f"{combined_ids[robot_idx]}")
-            elif 1 <= robot_idx <= 3:  # Burgers
-                ax.scatter(current_x, current_y, current_z, color=colors[robot_idx % len(colors)], 
-                          marker='o', s=50, label=f"{combined_ids[robot_idx]}")
-            elif robot_idx == 4:  # Waffle
-                ax.scatter(current_x, current_y, current_z, color=colors[robot_idx % len(colors)], 
-                          marker='*', s=150, label=f"{combined_ids[robot_idx]}")
-            elif robot_idx == 5:  # Drone
-                ax.scatter(current_x, current_y, current_z, color=colors[robot_idx % len(colors)], 
-                          marker='^', s=100, label=f"{combined_ids[robot_idx]}")
-            else:  # Fleet 2
-                ax.scatter(current_x, current_y, current_z, color=colors[robot_idx % len(colors)], 
-                          marker='d', s=80, label=f"{combined_ids[robot_idx]}")
-        
-        # Add legend (only on first frame)
+            # Draw pyramid at current position
+            draw_pyramid(ax, np.array([current_x, current_y, current_z]), direction, color=colors[robot_idx % len(colors)], scale=0.3, alpha=0.9)
+            # For legend: only add once per robot
+            if i == 0:
+                legend_handles.append(Patch(facecolor=colors[robot_idx % len(colors)], label=f"{combined_ids[robot_idx]}"))
         if i == 0:
-            ax.legend(loc='upper right')
-        
-        # Title with current time
+            ax.legend(handles=legend_handles, loc='upper right')
         ax.set_title(f"3D Robot Simulation - Time: {combined_simulation.t[i]:.2f}s")
-        
         plt.pause(0.05)
-    
     plt.show()
 
 # Afficher l'animation 2D standard
