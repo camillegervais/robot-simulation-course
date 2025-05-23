@@ -81,12 +81,12 @@ def tb3B_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     # robot_id = {0 : 'DCA', 1: 'burger1', 2: 'burger2', 3: 'burger3', 4: 'waffle', 5: 'rmtt', 6: 'DCA_SI', 7: 'Immobile'} 
 
     all_robots_poses = np.concatenate((tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses), axis=1)
-    if robotNo == 2:
-        vx,vy = logic.control(all_robots_poses, robotNo-1)
+    if robotNo == 1:
+        vx,vy = logic.control(all_robots_poses, robotNo)
+    elif robotNo == 2:
+        vx,vy = logic.control(all_robots_poses, robotNo)
     elif robotNo == 3:
-        vx,vy = logic.control(all_robots_poses, robotNo-1)
-    elif robotNo == 4:
-        vx,vy = logic.control(all_robots_poses, robotNo-1)
+        vx,vy = logic.control(all_robots_poses, robotNo)
     # -----------------------
 
     return vx,vy
@@ -110,8 +110,7 @@ def tb3W_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     #  --- TO BE MODIFIED --- 
     # robot_id = {0 : 'DCA', 1: 'burger1', 2: 'burger2', 3: 'burger3', 4: 'waffle', 5: 'rmtt', 6: 'DCA_SI', 7: 'Immobile'} 
     all_robots_poses = np.concatenate((tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses), axis=1)
-    if robotNo == 5:
-        vx,vy = logic.control(all_robots_poses, robotNo-1)
+    vx,vy = logic.control(all_robots_poses, 4)
     # -----------------------
 
     return vx,vy
@@ -135,11 +134,10 @@ def rmtt_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     # robot_id = {0 : 'DCA', 1: 'burger1', 2: 'burger2', 3: 'burger3', 4: 'waffle', 5: 'rmtt', 6: 'DCA_SI', 7: 'Immobile'} 
 
     all_robots_poses = np.concatenate((tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses), axis=1)
-    if robotNo == 6:
-        vx,vy,vz,trigger_land = logic.control(all_robots_poses, robotNo-1)
-        # trigger_land = 0: do not land
-        # trigger_land = 1: land
-        # trigger_land = 2: take off
+    vx,vy,vz,trigger_land = logic.control(all_robots_poses, 5)
+    # trigger_land = 0: do not land
+    # trigger_land = 1: land
+    # trigger_land = 2: take off
     # -----------------------
 
     return vx,vy,vz,trigger_land,led
@@ -164,9 +162,8 @@ def rmep_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
     # robot_id = {0 : 'DCA', 1: 'burger1', 2: 'burger2', 3: 'burger3', 4: 'waffle', 5: 'rmtt', 6: 'DCA_SI', 7: 'Immobile'} 
 
     all_robots_poses = np.concatenate((tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses), axis=1)
-    if robotNo == 1:
-        vx,vy = logic.control(all_robots_poses, robotNo-1)
-        wz = 0
+    vx,vy = logic.control(all_robots_poses, 0)
+    wz = 0
 
     return vx, vy, wz
 # ====================================
