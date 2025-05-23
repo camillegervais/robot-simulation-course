@@ -127,9 +127,9 @@ for t in combined_simulation.t:
         )
     elif not formation_finished:
         r_ref_formation = np.zeros((N_fleet1, 2))
-        r_ref_formation[1] = [0, 0.4]
-        r_ref_formation[2] = [0.4, 0]
-        r_ref_formation[3] = [0, -0.4]
+        r_ref_formation[1] = [-0.2, 0.4]
+        r_ref_formation[2] = [0.4, -0.05]
+        r_ref_formation[3] = [-0.2, -0.4]
         
         vx_fleet1, vy_fleet1, formation_finished = control_algo.formation(
             t, N_fleet1, fleet1_poses, r_ref_formation, 
@@ -167,6 +167,7 @@ for t in combined_simulation.t:
         # Extraire uniquement la vitesse du drone RMTT (indice N_fleet1)
         vx_drone = np.array([all_vx[N_fleet1]])
         vy_drone = np.array([all_vy[N_fleet1]])
+        print((f"Drone RMTT velocity: {vx_drone}, {vy_drone}"))
     elif not dance_finished:
         vx_fleet1, vy_fleet1, dance_finished = control_algo.dance(
             t, N_fleet1, fleet1_poses, 
@@ -180,8 +181,9 @@ for t in combined_simulation.t:
     
     # === Traitement des drones (robot 5) ===
     # Les drones restent immobiles sauf pendant la phase d'oscillation
-    if not oscillation_finished and formation_bis_finished:
+    if not oscillation_finished and formation_finished:
         # Les vitesses du drone sont déjà calculées dans la phase d'oscillation
+        print("Drone moving")
         pass
     else:
         # En dehors de la phase d'oscillation, le drone reste immobile
@@ -204,6 +206,8 @@ for t in combined_simulation.t:
     # Fusionner toutes les vitesses dans un seul tableau
     vx_all[:N_fleet1] = vx_fleet1
     vy_all[:N_fleet1] = vy_fleet1
+
+    print(f"Drone velocities: {vx_drone}, {vy_drone}")
     
     vx_all[N_fleet1:N_fleet1+nbRMTT] = vx_drone
     vy_all[N_fleet1:N_fleet1+nbRMTT] = vy_drone
@@ -217,7 +221,7 @@ for t in combined_simulation.t:
         
         # Déterminer la dynamique du robot actuel
         current_robot = combined_fleet.robot[robotNo]
-        
+
         # Robot waffle (index 4) reste fixe à (8, 1.5)
         if robotNo == 4:  # waffle
             vx_all[robotNo] = 0.0
@@ -246,6 +250,8 @@ for t in combined_simulation.t:
             current_robot.ctrl = np.array([vxi, vyi])
         else:
             current_robot.ctrl = si_to_uni(vxi, vyi, combined_poses[robotNo, 2], kp=15.)
+    
+    # print(f"Time: {t:.2f}, Robot velocities: {vx_all}, {vy_all}")
     
     # Mettre à jour les données de simulation
     combined_simulation.addDataFromFleet(combined_fleet)
