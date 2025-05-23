@@ -52,11 +52,12 @@
 '''
 
 import numpy as np
-import math
+import math, time
 
 # ==============   "GLOBAL" VARIABLES KNOWN BY ALL THE FUNCTIONS ===================
 # all variables declared here will be known by functions below
 # use keyword "global" inside a function if the variable needs to be modified by the function
+
 
 
 
@@ -66,7 +67,7 @@ import math
 # should ONLY return (vx,vy) for the robot command
 # max useable numbers of robots = 6 
 # ====================================
-def tb3B_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose):
+def tb3B_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, lidar_scan, clock):
 # ====================================
 
     nbTB3= len(tb3B_poses[0]) # number of total tb3 robots in the use
@@ -89,7 +90,7 @@ def tb3B_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
 # should ONLY return (vx,vy) for the robot command
 # max useable numbers of robots = 2
 # ====================================
-def tb3W_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose):
+def tb3W_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, lidar_scan, clock):
 # ====================================
 
     nbTB3= len(tb3B_poses[0]) # number of total tb3 robots in the use
@@ -112,21 +113,24 @@ def tb3W_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
 # should ONLY return (vx,vy,vz) for the robot command
 # max useable numbers of drones = 4
 # ====================================
-def rmtt_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose):
+def rmtt_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, clock):
 # ====================================
     nbTB3= len(tb3B_poses[0]) # number of total tb3 robots in the use
     nbTB3W = len(tb3W_poses[0]) # number of total tb3W robots in the use
     nbRMTT = len(rmtt_poses[0]) # number of total dji rmtt drones in the use
     nbRMEP = len(rmep_poses[0]) # number of total dji rmep in the use
     nbOBSTACLE = len(obstacle_pose[0]) # number of total obstacle positions in the environment
-
+    led = (0,0,0) # led color (r,g,b) in range [0,255]
     #  --- TO BE MODIFIED ---
     vx = 0.0
     vy = 0.0
     vz = 0.0
+    time.sleep(5) # sleep for 100ms
+    trigger_land = False # trigger to land the drone (True/False)
+    led = (255,0,0) 
     # -----------------------
 
-    return vx,vy,vz
+    return vx,vy,vz,trigger_land,led
 # ====================================    
 
 
@@ -136,7 +140,7 @@ def rmtt_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
 # should ONLY return (vx,vy,wz) for the robot command
 # max useable numbers of robots = 2
 # ====================================
-def rmep_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose):
+def rmep_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, clock):
 # ====================================
     nbTB3= len(tb3B_poses[0]) # number of total tb3 robots in the use
     nbTB3W = len(tb3W_poses[0]) # number of total tb3W robots in the use
@@ -158,16 +162,16 @@ def rmep_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep
 
 
 # ======== ! DO NOT MODIFY ! ============
-def tb3B_controller(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose):
-    vx,vy = tb3B_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose)
+def tb3B_controller(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, lidar_scan, clock):
+    vx,vy = tb3B_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, lidar_scan, clock)
     return vx,vy
-def tb3W_controller(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose):
-    vx,vy = tb3W_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose)
+def tb3W_controller(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, lidar_scan, clock):
+    vx,vy = tb3W_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, lidar_scan, clock)
     return vx,vy
-def rmtt_controller(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose):
-    vx,vy,vz = rmtt_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose)
-    return vx,vy,vz
-def rmep_controller(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose):
-    vx,vy,wz = rmep_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose)
+def rmtt_controller(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, clock):
+    vx, vy, vz, trigger_land, led = rmtt_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, clock)
+    return vx, vy, vz, trigger_land, led
+def rmep_controller(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, clock):
+    vx,vy,wz = rmep_control_fn(robotNo, robotPose, tb3B_poses, tb3W_poses, rmtt_poses, rmep_poses, obstacle_pose, clock)
     return vx,vy,wz
 # =======================================
