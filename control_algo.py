@@ -305,7 +305,6 @@ def dance(t, robotNo, robots_poses, robots_velocities, distance=1.5):
     
     # number of robots (short notation)
     N = robots_poses.shape[0]
-    print("Number of robot dance : ",N)
     
     # control law
     vx = np.zeros(N)

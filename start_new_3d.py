@@ -84,8 +84,11 @@ for i in range(nbDCA_Fleet2 + nbImmobile_Fleet2):
     # Ajuster les positions pour éviter les superpositions
     position_x = -1.5 if i == 0 else -2.0
     position_y = 1.0 if i == 0 else -1.0
-    position_z = 0.0  # Initialiser à 0 en hauteur
+    # DCA_SI (i==0) commence à 1m de hauteur, Immobile (i==1) à 0m
+    position_z = 1.0 if i == 0 else 0.0
     robot.state = np.array([position_x, position_y, position_z])
+    # --- Set robot number for DCA_SI and Immobile ---
+    robot.robotNo = 6 + i
     combined_fleet.robot.append(robot)
     combined_fleet.nbOfRobots += 1
 
@@ -146,6 +149,15 @@ for t in combined_simulation.t:
         vx_drone = np.zeros(1)
         vy_drone = np.zeros(1)
         vz_drone = np.zeros(1)
+        # --- DCA_SI (robot 6) follows DCA (robot 0) during forward phase ---
+        if N > 6:
+            dca_pos = combined_poses[0, :3]
+            dca_si_pos = combined_poses[6, :3]
+            kp_follow = 2.0
+            error_follow = dca_pos - dca_si_pos
+            vx_all[6] = kp_follow * error_follow[0]
+            vy_all[6] = kp_follow * error_follow[1]
+            vz_all[6] = kp_follow * error_follow[2]
     elif not formation_finished:
         r_ref_formation = np.zeros((N_fleet1, 2))
         r_ref_formation[1] = [-0.2, 0.4]
@@ -159,6 +171,16 @@ for t in combined_simulation.t:
         vx_drone = np.zeros(1)
         vy_drone = np.zeros(1)
         vz_drone = np.zeros(1)
+        # --- DCA_SI (robot 6) follows DCA (robot 0) during formation phase ---
+        if N >= 6:
+            dca_pos = combined_poses[0, :3]
+            dca_si_pos = combined_poses[6, :3]
+            kp_follow = 2.0
+            error_follow = dca_pos - dca_si_pos
+            vx_all[6] = kp_follow * error_follow[0]
+            vy_all[6] = kp_follow * error_follow[1]
+            vz_all[6] = kp_follow * error_follow[2]
+        
     elif not oscillation_finished:
         if pause_timer == 0:
             oscillation_start_time = t
@@ -177,7 +199,15 @@ for t in combined_simulation.t:
         vx_drone = np.array([vx_all[N_fleet1]])
         vy_drone = np.array([vy_all[N_fleet1]])
         vz_drone = np.array([vz_all[N_fleet1]])
-
+        # --- NEW: Make the second drone (index N_fleet1+1) follow the DCA (index 0) ---
+        if N > N_fleet1 + 1:
+            dca_pos = combined_poses[0, :3]
+            drone2_pos = combined_poses[N_fleet1+1, :3]
+            kp_follow = 2.0
+            error_follow = dca_pos - drone2_pos
+            vx_all[N_fleet1+1] = kp_follow * error_follow[0]
+            vy_all[N_fleet1+1] = kp_follow * error_follow[1]
+            vz_all[N_fleet1+1] = kp_follow * error_follow[2]
         # Overwrite fleet1 velocities in vx_all, vy_all, vz_all for merging later
         vx_all[:N_fleet1] = vx_fleet1
         vy_all[:N_fleet1] = vy_fleet1
@@ -206,25 +236,35 @@ for t in combined_simulation.t:
     start_idx_fleet2 = N_fleet1 + nbRMTT
     end_idx_fleet2 = N
     N_fleet2 = end_idx_fleet2 - start_idx_fleet2
-    
+
     # Les robots DCA_SI et Immobile restent immobiles pendant toute la simulation
     vx_fleet2 = np.zeros(N_fleet2)
     vy_fleet2 = np.zeros(N_fleet2)
     vz_fleet2 = np.zeros(N_fleet2)
-    
+
+    # --- DCA_SI (robot 6, i=0 in fleet2) follows DCA (robot 0) during forward and formation phases ---
+    if (not forward_finished or not formation_finished) and N >= 7:
+        dca_pos = combined_poses[0, :3]
+        dca_si_pos = combined_poses[6, :3]
+        kp_follow = 2.0
+        error_follow = dca_pos - dca_si_pos
+        vx_fleet2[0] = kp_follow * error_follow[0]
+        vy_fleet2[0] = kp_follow * error_follow[1]
+        # Do not change vz for DCA_SI, keep it at zero
+        vz_fleet2[0] = 0.0
     # Fusionner toutes les vitesses dans un seul tableau
     vx_all[:N_fleet1] = vx_fleet1
     vy_all[:N_fleet1] = vy_fleet1
     vz_all[:N_fleet1] = vz_fleet1
-    
+
     vx_all[N_fleet1:N_fleet1+nbRMTT] = vx_drone
     vy_all[N_fleet1:N_fleet1+nbRMTT] = vy_drone
     vz_all[N_fleet1:N_fleet1+nbRMTT] = vz_drone
-    
+
     vx_all[start_idx_fleet2:end_idx_fleet2] = vx_fleet2
     vy_all[start_idx_fleet2:end_idx_fleet2] = vy_fleet2
     vz_all[start_idx_fleet2:end_idx_fleet2] = vz_fleet2
-    
+
     # Appliquer les contrôles à chaque robot
     for robotNo in range(combined_fleet.nbOfRobots):
         vxi, vyi, vzi = vx_all[robotNo], vy_all[robotNo], vz_all[robotNo]
@@ -238,8 +278,8 @@ for t in combined_simulation.t:
             vy_all[robotNo] = 0.0
             vz_all[robotNo] = 0.0
             vxi, vyi, vzi = 0.0, 0.0, 0.0
-        # Robots de la flotte 2 (DCA_SI et Immobile) restent immobiles
-        elif robotNo >= start_idx_fleet2:
+        # Robots de la flotte 2 (Immobile) restent immobiles (+1 car on veut DCA_SI mobile)
+        elif robotNo >= start_idx_fleet2+1:
             vx_all[robotNo] = 0.0
             vy_all[robotNo] = 0.0
             vz_all[robotNo] = 0.0
@@ -263,7 +303,6 @@ for t in combined_simulation.t:
             current_robot.setCtrl(np.array([vxi, vyi]))
         else:
             current_robot.setCtrl(si_to_uni(vxi, vyi, combined_poses[robotNo, 2], kp=15.))
-    
     # Mettre à jour les données de simulation
     combined_simulation.addDataFromFleet(combined_fleet)
     # Intégrer le mouvement de la flotte

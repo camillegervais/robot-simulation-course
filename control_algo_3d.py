@@ -65,6 +65,15 @@ def forward_3d(t, robotNo, robots_poses, robots_velocities, distance=1.5):
     from control_algo import forward
     vx, vy, finished = forward(t, robotNo, robots_poses, robots_velocities, distance)
     vz = np.zeros_like(vx)
+    # --- DCA_SI (robot 6) follows DCA (robot 0) ---
+    if len(vx) > 6:
+        dca_pos = robots_poses[0, :3]
+        dca_si_pos = robots_poses[6, :3]
+        kp_follow = 2.0
+        error_follow = dca_pos - dca_si_pos
+        vx[6] = kp_follow * error_follow[0]
+        vy[6] = kp_follow * error_follow[1]
+        vz[6] = kp_follow * error_follow[2]
     return vx, vy, vz, finished
 
 def formation_3d(t, robotNo, robots_poses, r_ref, robots_velocities, distance=1.5):
@@ -72,6 +81,15 @@ def formation_3d(t, robotNo, robots_poses, r_ref, robots_velocities, distance=1.
     from control_algo import formation
     vx, vy, finished = formation(t, robotNo, robots_poses, r_ref, robots_velocities, distance)
     vz = np.zeros_like(vx)
+    # --- DCA_SI (robot 6) follows DCA (robot 0) ---
+    if len(vx) > 6:
+        dca_pos = robots_poses[0, :3]
+        dca_si_pos = robots_poses[6, :3]
+        kp_follow = 2.0
+        error_follow = dca_pos - dca_si_pos
+        vx[6] = kp_follow * error_follow[0]
+        vy[6] = kp_follow * error_follow[1]
+        vz[6] = kp_follow * error_follow[2]
     return vx, vy, vz, finished
 
 def dance_3d(t, robotNo, robots_poses, robots_velocities, distance=1.5):

@@ -85,7 +85,21 @@ def animate_3d(combined_simulation, combined_fleet, combined_ids=None):
                 marker = 'd'; size = 80
             # Remove and re-add scatter to update marker/size
             robot_scatters[robot_idx].remove()
-            robot_scatters[robot_idx] = ax.scatter(current_x, current_y, current_z, color=colors[robot_idx % len(colors)], marker=marker, s=size, label=(f"Robot {robot_idx}: {combined_ids[robot_idx]}" if (combined_ids and robot_idx < len(combined_ids)) else f"Robot {robot_idx}"))
+            # --- FIX: Always add label for all robots, but only on first frame to avoid duplicate legend entries ---
+            label = None
+            if i == 0 and combined_ids and robot_idx < len(combined_ids):
+                label = f"Robot {robot_idx}: {combined_ids[robot_idx]}"
+            # Use a distinct marker for DCA_SI (robot 6)
+            if robot_idx == 6:
+                marker = 'X'
+                size = 120
+                color = 'black'
+            # Use a distinct marker for Immobile (robot 7)
+            if robot_idx == 7:
+                marker = 'P'
+                size = 120
+                color = 'gray'
+            robot_scatters[robot_idx] = ax.scatter(current_x, current_y, current_z, color=colors[robot_idx % len(colors)] if robot_idx not in [6,7] else (color), marker=marker, s=size, label=label)
             # Update vertical line for drone
             if robot_idx == 5 and vertical_lines[robot_idx] is not None:
                 vertical_lines[robot_idx].set_data([current_x, current_x], [current_y, current_y])
