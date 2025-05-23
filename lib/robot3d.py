@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Robot Class
+Robot Class with 3D support
 
 Author: S. Bertrand, 2023
+Modified for 3D support
 """
 
 import math
@@ -38,8 +39,10 @@ class Robot:
     # -------------------------------------------------------------------------
     def __init__(self, dynamics='singleIntegrator2D', robotNo=0, initState=[]):
     # -------------------------------------------------------------------------
+    
         self.robotNo = robotNo
         self.dynamics = dynamics
+        
         
         if (dynamics == 'singleIntegrator2D'):
             # state
@@ -62,7 +65,7 @@ class Robot:
             # control
             self.ctrlDim = 3
             self.ctrl = np.array([0.,0.,0.]) # vx, vy, vz
-        
+            
         elif (dynamics == 'unicycle'):
             # state
             self.stateDim = 3
@@ -104,7 +107,7 @@ class Robot:
     def __repr__(self):
     # -------------------------------------------------------------------------
         """Display in command line"""
-        message = "\nRobot:\n index: {}\n".format(self.index)
+        message = "\nRobot:\n no: {}\n".format(self.robotNo)
         message += " state: {}".format(self.state)        
         return message+"\n"
     
@@ -201,27 +204,3 @@ class Fleet:
         return poses
 
 # ====================== end of class Fleet ===================================
-
-
-   
-# ============================== MAIN =========================================        
-if __name__=='__main__':
-# =============================================================================
-    
-    initState = np.array([-1., 2.])
-    robot = Robot(dynamics='singleIntegrator2D', robotNo=0, initState=initState)    
-    
-    print(robot)
-    
-    
-   
-    nbOfRobots = 8   
-    
-    fleet = Fleet(nbOfRobots, dynamics='singleIntegrator2D')#, initStates=initState)    
-    
-    for i in range(nbOfRobots):
-        fleet.robot[i].state = 20*np.random.rand(2)-10  # random init btw -10, +10
-    
-    print(fleet) 
-    
-    print(fleet.getPosesArray())
