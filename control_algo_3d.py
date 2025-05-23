@@ -24,12 +24,14 @@ def drone_oscillation_3d(t, robotNo, robots_poses, robots_velocities, oscillatio
     waffle_position = robots_poses[waffle_idx, 0:3]
     rmtt_idx = N_fleet1
     drone_position = robots_poses[rmtt_idx, 0:3]
-    # Make the drone oscillate in x while going down in z (like hurt)
+    # Make the drone oscillate in x and y while going down in z (like hurt in 3D)
     amplitude_x = 0.7
+    amplitude_y = 0.4
     frequency_x = 1.2  # Hz
+    frequency_y = 0.7  # Hz
     relative_time = t - oscillation_start_time
     target_x = waffle_position[0] + amplitude_x * np.sin(2 * np.pi * frequency_x * relative_time)
-    target_y = waffle_position[1]
+    target_y = waffle_position[1] + amplitude_y * np.cos(2 * np.pi * frequency_y * relative_time)
     # Descend in z, but not straight: slow descent
     z_start = waffle_position[2] + 1.0
     z_end = 0.25
