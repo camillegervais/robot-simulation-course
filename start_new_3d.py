@@ -111,6 +111,8 @@ oscillation_finished = False
 pause_timer = 0
 oscillation_start_time = 0
 
+dance_started = False  # Flag to start dance phase after drone descent
+
 # Mettre à jour le nombre de robots dans la flotte principale pour la fonction d'oscillation
 import control_algo
 control_algo.N_fleet1 = nbRMEP + nbTB3B + nbWaffle
@@ -161,43 +163,43 @@ for t in combined_simulation.t:
         if pause_timer == 0:
             oscillation_start_time = t
             pause_timer = t
+        # All fleet1 robots stop, only drone moves
         vx_fleet1 = np.zeros(N_fleet1)
         vy_fleet1 = np.zeros(N_fleet1)
         vz_fleet1 = np.zeros(N_fleet1)
-        all_vx, all_vy, all_vz, oscillation_finished = control_algo_3d.drone_oscillation_3d(
+        # Get velocities for ALL robots (including drone) from control_algo_3d
+        vx_all, vy_all, vz_all, oscillation_finished = control_algo_3d.drone_oscillation_3d(
             t, N_fleet1 + nbRMTT, combined_poses, 
             np.array([[0,0] for _ in range(N)]),
             oscillation_start_time=oscillation_start_time
         )
+        # Set drone velocities directly from vx_all, vy_all, vz_all
         vx_drone = np.array([vx_all[N_fleet1]])
         vy_drone = np.array([vy_all[N_fleet1]])
         vz_drone = np.array([vz_all[N_fleet1]])
+
+        # Overwrite fleet1 velocities in vx_all, vy_all, vz_all for merging later
+        vx_all[:N_fleet1] = vx_fleet1
+        vy_all[:N_fleet1] = vy_fleet1
+        vz_all[:N_fleet1] = vz_fleet1
         # Debug print
         print(f"Drone RMTT 3D velocity: {vx_drone}, {vy_drone}, {vz_drone}")
     else:
-        vx_fleet1 = np.zeros(N_fleet1)
-        vy_fleet1 = np.zeros(N_fleet1)
-        vz_fleet1 = np.zeros(N_fleet1)
+        if not dance_started:
+            dance_started = True
+            print("Starting dance phase for fleet1 around waffle robot!")
+        # Fleet1 dances, drone and fleet2 stay still
+        vx_fleet1, vy_fleet1, vz_fleet1, dance_finished = control_algo_3d.dance_3d(
+            t, N_fleet1, fleet1_poses, 
+            np.array([[0,0] for _ in range(N_fleet1)]),
+            distance=2
+        )
         vx_drone = np.zeros(1)
         vy_drone = np.zeros(1)
         vz_drone = np.zeros(1)
     
     # Z-velocity (altitude) is zero for all robots in the 2D plane
     vz_fleet1 = np.zeros(N_fleet1)
-    
-    # === Traitement des drones (robot 5) ===
-    # Les drones restent immobiles sauf pendant la phase d'oscillation
-    if not oscillation_finished and formation_finished:
-        # Les vitesses du drone sont déjà calculées dans la phase d'oscillation
-        vx_drone = np.array([vx_all[N_fleet1]])
-        vy_drone = np.array([vy_all[N_fleet1]])
-        # Add oscillation in Z to make it more interesting
-        vz_drone = np.array([0.1 * np.sin(2 * np.pi * 0.5 * (t - oscillation_start_time))])
-    else:
-        # En dehors de la phase d'oscillation, le drone reste immobile
-        vx_drone = np.zeros(nbRMTT)
-        vy_drone = np.zeros(nbRMTT)
-        vz_drone = np.zeros(nbRMTT)
     
     # === Traitement de la flotte 2 (robots 6 et 7) ===
     # Index de début et fin des robots de la flotte 2 dans la flotte combinée
@@ -242,27 +244,25 @@ for t in combined_simulation.t:
             vy_all[robotNo] = 0.0
             vz_all[robotNo] = 0.0
             vxi, vyi, vzi = 0.0, 0.0, 0.0
-            
+        # Set the correct dynamics for each robot
         if robotNo < N_fleet1:
-            # Robots de la flotte 1 (DCA en singleIntegrator3D, les burgers en unicycle)
-            if robotNo == 0:  # DCA
+            if robotNo == 0:
                 current_dynamics = 'singleIntegrator3D'
-            elif robotNo == 4:  # waffle
+            elif robotNo == 4:
                 current_dynamics = 'unicycle'
-            else:  # burgers
+            else:
                 current_dynamics = 'unicycle'
-        elif robotNo < start_idx_fleet2:  # Drones
+        elif robotNo < start_idx_fleet2:
             current_dynamics = 'singleIntegrator3D'
-        else:  # Flotte 2 (singleIntegrator3D)
-            current_dynamics = 'singleIntegrator3D'
-        
-        if current_dynamics == 'singleIntegrator3D':
-            current_robot.ctrl = np.array([vxi, vyi, vzi])
-        elif current_dynamics == 'singleIntegrator2D':
-            current_robot.ctrl = np.array([vxi, vyi])
         else:
-            # For unicycle robots, convert 2D velocity to unicycle control
-            current_robot.ctrl = si_to_uni(vxi, vyi, combined_poses[robotNo, 2], kp=15.)
+            current_dynamics = 'singleIntegrator3D'
+        # Actually update the robot's control input
+        if current_dynamics == 'singleIntegrator3D':
+            current_robot.setCtrl(np.array([vxi, vyi, vzi]))
+        elif current_dynamics == 'singleIntegrator2D':
+            current_robot.setCtrl(np.array([vxi, vyi]))
+        else:
+            current_robot.setCtrl(si_to_uni(vxi, vyi, combined_poses[robotNo, 2], kp=15.))
     
     # Mettre à jour les données de simulation
     combined_simulation.addDataFromFleet(combined_fleet)

@@ -15,110 +15,86 @@ import lib.robot3d as robot_lib   # use this line for usage of this module by sc
 
 # Custom function to animate 3D robot trajectories
 def animate_3d(combined_simulation, combined_fleet, combined_ids=None):
-    """Animate 3D robot trajectories from a simulation"""
+    """Animate 3D robot trajectories from a simulation with minimal flicker"""
     fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
-    
-    # Set the plot limits
+
+    # Set the plot limits and labels ONCE
     ax.set_xlim([-3, 10])
     ax.set_ylim([-3, 3])
     ax.set_zlim([0, 3])
-    
     ax.set_xlabel('X (m)')
     ax.set_ylabel('Y (m)')
     ax.set_zlabel('Z (m)')
-    
-    # Colors for different robot types
-    colors = ['red', 'green', 'blue', 'orange', 'purple', 'cyan', 'brown', 'pink']
-    
-    # Set a fixed camera view angle
     ax.view_init(elev=20, azim=45)
-    
+
     # Create a grid on the ground plane for better spatial reference
     x_grid = np.linspace(-3, 10, 14)
     y_grid = np.linspace(-3, 3, 7)
     X, Y = np.meshgrid(x_grid, y_grid)
     Z = np.zeros_like(X)
+    ground = ax.plot_surface(X, Y, Z, color='gray', alpha=0.2)
+
+    colors = ['red', 'green', 'blue', 'orange', 'purple', 'cyan', 'brown', 'pink']
+    robot_lines = []
+    robot_scatters = []
+    vertical_lines = []
+    legend_added = False
+
+    # Pre-create line and scatter objects for each robot
+    for robot_idx in range(combined_fleet.nbOfRobots):
+        # Initial empty data
+        line, = ax.plot([], [], [], color=colors[robot_idx % len(colors)], alpha=0.5)
+        robot_lines.append(line)
+        scatter = ax.scatter([], [], [], color=colors[robot_idx % len(colors)], s=80)
+        robot_scatters.append(scatter)
+        if robot_idx == 5:
+            # For drone, add a vertical line
+            vline, = ax.plot([], [], [], color=colors[robot_idx % len(colors)], linestyle='--', alpha=0.5)
+            vertical_lines.append(vline)
+        else:
+            vertical_lines.append(None)
 
     # Animation loop
-    for i in range(0, len(combined_simulation.t), 5):  # Step every 5 frames for speed
-        ax.clear()
-        ax.set_xlim([-3, 10])
-        ax.set_ylim([-3, 3])
-        ax.set_zlim([0, 3])
-        ax.set_xlabel('X (m)')
-        ax.set_ylabel('Y (m)')
-        ax.set_zlabel('Z (m)')
-        # Keep the fixed camera view
-        ax.view_init(elev=20, azim=45)
-        # Draw the ground grid
-        ax.plot_surface(X, Y, Z, color='gray', alpha=0.2)
-        
-        # Draw each robot
+    for i in range(0, len(combined_simulation.t), 5):
         for robot_idx in range(combined_fleet.nbOfRobots):
-            # Get robot trajectory up to current time
             x = combined_simulation.robotSimulation[robot_idx].state[:i+1, 0]
             y = combined_simulation.robotSimulation[robot_idx].state[:i+1, 1]
-            
-            # Get z-coordinate or use 0 if 2D robot
             if combined_simulation.robotSimulation[robot_idx].robot.dynamics == 'singleIntegrator3D':
                 z = combined_simulation.robotSimulation[robot_idx].state[:i+1, 2]
             else:
                 z = np.zeros_like(x)
-            
-            # Current position
+            # Update trajectory line
+            robot_lines[robot_idx].set_data(x, y)
+            robot_lines[robot_idx].set_3d_properties(z)
+            # Update current position scatter
             current_x = x[-1]
             current_y = y[-1]
             current_z = z[-1]
-            
-            # Plot trajectory
-            ax.plot(x, y, z, color=colors[robot_idx % len(colors)], alpha=0.5)
-            
-            # Plot current position (different marker for each robot type)
-            marker = 'o'  # Default marker
-            size = 80     # Default size
-            
-            # Customize markers based on robot type
-            if robot_idx == 0:  # DCA
-                marker = 's'  # square
-                size = 100
-            elif 1 <= robot_idx <= 3:  # Burgers
-                marker = 'o'  # circle
-                size = 50
-            elif robot_idx == 4:  # Waffle
-                marker = '*'  # star
-                size = 150
-            elif robot_idx == 5:  # Drone
-                marker = '^'  # triangle
-                size = 100
-            else:  # Fleet 2
-                marker = 'd'  # diamond
-                size = 80
-            
-            # Label to display (only if IDs are provided)
-            label = f"Robot {robot_idx}" + (f": {combined_ids[robot_idx]}" if combined_ids and robot_idx < len(combined_ids) else "")
-            
-            # Plot the robot
-            ax.scatter(current_x, current_y, current_z, 
-                      color=colors[robot_idx % len(colors)], 
-                      marker=marker, 
-                      s=size, 
-                      label=label)
-            
-            # For drone (robot_idx == 5), add a vertical line to the ground for better depth perception
-            if robot_idx == 5:
-                ax.plot([current_x, current_x], [current_y, current_y], [0, current_z], 
-                       color=colors[robot_idx % len(colors)], linestyle='--', alpha=0.5)
-        
-        # Add legend (only on first frame)
-        if i == 0:
+            marker = 'o'
+            size = 80
+            if robot_idx == 0:
+                marker = 's'; size = 100
+            elif 1 <= robot_idx <= 3:
+                marker = 'o'; size = 50
+            elif robot_idx == 4:
+                marker = '*'; size = 150
+            elif robot_idx == 5:
+                marker = '^'; size = 100
+            else:
+                marker = 'd'; size = 80
+            # Remove and re-add scatter to update marker/size
+            robot_scatters[robot_idx].remove()
+            robot_scatters[robot_idx] = ax.scatter(current_x, current_y, current_z, color=colors[robot_idx % len(colors)], marker=marker, s=size, label=(f"Robot {robot_idx}: {combined_ids[robot_idx]}" if (combined_ids and robot_idx < len(combined_ids)) else f"Robot {robot_idx}"))
+            # Update vertical line for drone
+            if robot_idx == 5 and vertical_lines[robot_idx] is not None:
+                vertical_lines[robot_idx].set_data([current_x, current_x], [current_y, current_y])
+                vertical_lines[robot_idx].set_3d_properties([0, current_z])
+        if not legend_added:
             ax.legend(loc='upper right')
-        
-        # Title with current time
+            legend_added = True
         ax.set_title(f"3D Robot Simulation - Time: {combined_simulation.t[i]:.2f}s")
-        
         plt.pause(0.05)
-    
     plt.show()
 
 # Function to plot 3D trajectories

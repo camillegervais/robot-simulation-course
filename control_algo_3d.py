@@ -23,47 +23,38 @@ def drone_oscillation_3d(t, robotNo, robots_poses, robots_velocities, oscillatio
     waffle_idx = N_fleet1 - 1
     waffle_position = robots_poses[waffle_idx, 0:3]
     rmtt_idx = N_fleet1
-    amplitude_x = 1.0
-    frequency_x = 0.8
+    drone_position = robots_poses[rmtt_idx, 0:3]
+    # Make the drone oscillate in x while going down in z (like hurt)
+    amplitude_x = 0.7
+    frequency_x = 1.2  # Hz
     relative_time = t - oscillation_start_time
-    num_cycles = 2
-    cycle_duration = 1.0 / frequency_x
-    total_oscillation_time = num_cycles * cycle_duration
-    oscillations_complete = relative_time >= total_oscillation_time
+    target_x = waffle_position[0] + amplitude_x * np.sin(2 * np.pi * frequency_x * relative_time)
+    target_y = waffle_position[1]
+    # Descend in z, but not straight: slow descent
+    z_start = waffle_position[2] + 1.0
+    z_end = 0.25
+    descent_duration = 3.0  # seconds
+    frac = min(relative_time / descent_duration, 1.0)
+    target_z = z_start + (z_end - z_start) * frac
+    target_position = np.array([target_x, target_y, target_z])
+    error = target_position - drone_position
+    kp_x = 6.0
+    kp_y = 6.0
+    kp_z = 3.0
+    vx[rmtt_idx] = kp_x * error[0]
+    vy[rmtt_idx] = kp_y * error[1]
+    vz[rmtt_idx] = kp_z * error[2]
+    # All other robots remain stationary
     for i in range(N):
-        if i == rmtt_idx:
-            drone_position = robots_poses[i, 0:3]
-            if not oscillations_complete:
-                # Oscillation ONLY on x, y fixed, descend in z
-                target_x = waffle_position[0] + amplitude_x * np.sin(2 * np.pi * frequency_x * relative_time)
-                target_y = waffle_position[1]
-                z_start = waffle_position[2] + 1.0
-                z_end = waffle_position[2] + 0.4
-                total_time = total_oscillation_time
-                target_z = z_start + (z_end - z_start) * min(relative_time / total_time, 1.0)
-            else:
-                target_x = waffle_position[0]
-                target_y = waffle_position[1]
-                target_z = waffle_position[2] + 1.0
-            target_position = np.array([target_x, target_y, target_z])
-            error = target_position - drone_position
-            kp = 3.0
-            vx[i] = kp * error[0]
-            vy[i] = kp * error[1]
-            vz[i] = kp * error[2]
-            print(f"Drone target: ({target_x:.2f}, {target_y:.2f}, {target_z:.2f}), error: ({error[0]:.2f}, {error[1]:.2f}, {error[2]:.2f})")
-        else:
+        if i != rmtt_idx:
             vx[i] = 0.0
             vy[i] = 0.0
             vz[i] = 0.0
+    # Finish when drone is close to ground
     finished = False
-    if oscillations_complete:
-        drone_position = robots_poses[rmtt_idx, 0:3]
-        final_position = np.array([waffle_position[0], waffle_position[1], waffle_position[2] + 1.0])
-        error_distance = np.linalg.norm(drone_position - final_position)
-        if error_distance < 0.05:
-            finished = True
-            print("Drone oscillation phase complete - returning to normal operation")
+    if abs(drone_position[2] - z_end) < 0.05:
+        finished = True
+        print("Drone has finished its hurt descent.")
     return vx, vy, vz, finished
 
 # Pass-through functions for compatibility with original control_algo
