@@ -1,0 +1,114 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{fancyhdr}
+\geometry{margin=2cm}
+
+% Couleurs
+\definecolor{militarygreen}{RGB}{53, 94, 59}
+\definecolor{khaki}{RGB}{189, 183, 107}
+\definecolor{darkgray}{RGB}{45, 45, 45}
+
+% Personnalisation des sections avec couleurs militaires
+\titleformat{\section}{\color{militarygreen}\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\color{khaki}\large\bfseries}{\thesubsection}{1em}{}
+
+% Augmentation de l'écartement entre les éléments dans la table des matières
+\renewcommand{\cftsecafterpnum}{\vspace{0.3em}} % Augmentation de l'espacement
+\renewcommand{\cftsubsecafterpnum}{\vspace{0.2em}} % Augmentation de l'espacement
+
+% Ajout d'un pied de page propre
+\pagestyle{fancy}
+\fancyhf{}
+\lfoot{\textbf{École CentraleSupélec}}
+\rfoot{\thepage}
+\renewcommand{\headrulewidth}{0pt} % Supprime la ligne de l'en-tête
+\renewcommand{\footrulewidth}{0.4pt} % Ajoute une ligne au pied de page
+
+\begin{document}
+
+% Ajout d'une page d'entête propre avec logo
+\begin{titlepage}
+\begin{center}
+    \includegraphics[width=0.3\textwidth]{logo_cs.jpg}\\[1cm] % Logo de l'école
+    {\Huge\textbf{Rapport de Projet de Robotique}}\\[0.5cm]
+    \textbf{Groupe n°7 : Étudiant 1, Étudiant 2, Étudiant 3, Étudiant 4}\\[1cm]
+    \textbf{Date : \today}\\[1cm]
+    \textbf{École CentraleSupélec}\\[1cm]
+    \vfill
+    \textbf{Résumé :}\\[0.5cm]
+    Ce projet de robotique a exploré la manipulation de robots terrestres et de drones dans un environnement simulé, avec un objectif final d'implémentation dans une volière ROS2.\\[1cm]
+    \vfill
+\end{center}
+\end{titlepage}
+
+% Réduction de l'espacement pour le sommaire
+\renewcommand{\cftsecfont}{\color{militarygreen}\bfseries}
+\renewcommand{\cftsubsecfont}{\color{khaki}\bfseries}
+\renewcommand{\cftsecafterpnum}{\vspace{-0.5em}} % Réduction de l'espacement
+\renewcommand{\cftsubsecafterpnum}{\vspace{-0.5em}} % Réduction de l'espacement
+
+% Mise à jour du sommaire avec plus de sous-parties
+\tableofcontents
+
+\newpage
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+Ce rapport présente le projet de robotique mené sur une période de deux mois. L'objectif principal était de concevoir un scénario permettant de manipuler des robots terrestres et des drones dans un environnement simulé. Ce projet s'inscrit dans le cadre de l'étude des systèmes multi-agents et de leur coordination dans des situations complexes.
+
+\section*{Description du Projet}
+\addcontentsline{toc}{section}{Description du Projet}
+\subsection*{Conception du Scénario}
+\addcontentsline{toc}{subsection}{Conception du Scénario}
+Le scénario développé impliquait la manipulation de robots terrestres et de drones. Les robots étaient commandés en vitesse à l'aide de lois de commande, avec comme seul retour leur position, initialement fournie par la simulation. Cette approche visait à simuler des situations réalistes où les capteurs des robots fournissent des données limitées.
+
+\subsection*{Simulation}
+\addcontentsline{toc}{subsection}{Simulation}
+Une simulation a été créée pour observer le comportement des robots commandés. Cette simulation permettait de tester les lois de commande et d'analyser la coordination entre les robots terrestres et les drones. Les résultats obtenus ont permis d'identifier les défis liés à la gestion des systèmes multi-agents.
+
+\section*{Objectif Final}
+\addcontentsline{toc}{section}{Objectif Final}
+L'objectif final du projet était d'implémenter la simulation dans une volière, en utilisant l'environnement ROS2. Cette implémentation aurait permis de visualiser la séquence sous nos yeux, offrant une validation pratique des concepts développés. Malheureusement, nous n'avons pas réussi à atteindre cet objectif en raison de contraintes techniques et de temps.
+
+\section*{Contexte du Projet}
+\addcontentsline{toc}{section}{Contexte du Projet}
+Le projet s'inscrit dans le cadre plus large de l'étude et de la recherche sur les systèmes multi-agents, en particulier dans le domaine de la robotique. Les systèmes multi-agents sont des systèmes composés de plusieurs agents (robots, drones, etc.) qui interagissent entre eux et avec leur environnement pour atteindre des objectifs communs ou individuels. La coordination et la communication entre ces agents sont essentielles pour le succès de missions complexes.
+
+\section*{Méthodologie}
+\addcontentsline{toc}{section}{Méthodologie}
+\subsection*{Leader-Follower et Stratégies de Commande}
+\addcontentsline{toc}{subsection}{Leader-Follower et Stratégies de Commande}
+Dans le cadre de ce projet, nous avons exploré la méthode Leader-Follower, où un agent leader guide les autres agents (suiveurs) vers un objectif commun. Cette méthode s'est avérée efficace pour la coordination des mouvements des robots et des drones.
+
+\subsection*{Choix des Lois de Commande}
+\addcontentsline{toc}{subsection}{Choix des Lois de Commande}
+Les lois de commande déterminent comment les robots et les drones réagissent aux commandes reçues et à leur environnement. Nous avons choisi des lois de commande basées sur des modèles mathématiques des systèmes, permettant une prédiction et un contrôle précis des mouvements.
+
+\subsection*{Implémentation et Tuning}
+\addcontentsline{toc}{subsection}{Implémentation et Tuning}
+L'implémentation des lois de commande a été réalisée dans l'environnement de simulation, suivie d'une phase de tuning pour ajuster les paramètres des lois de commande. Cette étape était cruciale pour assurer la stabilité et la réactivité des robots et des drones dans la simulation.
+
+\section*{Difficultés Rencontrées}
+\addcontentsline{toc}{section}{Difficultés Rencontrées}
+Plusieurs difficultés ont été rencontrées au cours du projet, notamment des problèmes de communication entre les agents, des défis liés à la modélisation précise des dynamiques des robots et des drones, ainsi que des limitations de la simulation. La gestion de ces difficultés a nécessité des ajustements itératifs des lois de commande et des stratégies de coordination.
+
+\section*{Améliorations pour l'Évitement de Collision}
+\addcontentsline{toc}{section}{Améliorations pour l'Évitement de Collision}
+L'évitement de collision est un aspect critique dans la manipulation de plusieurs robots et drones. Des améliorations ont été apportées aux lois de commande pour intégrer des mécanismes d'évitement de collision, basés sur des capteurs et des algorithmes de détection d'obstacles.
+
+\section*{Mise en Place dans le Monde Réel}
+\addcontentsline{toc}{section}{Mise en Place dans le Monde Réel}
+La mise en place du système dans un environnement réel présente des défis supplémentaires, notamment en termes de calibration des capteurs, de fiabilité des communications et de robustesse des lois de commande face à des perturbations imprévues. Des tests préliminaires ont été réalisés avec succès, mais une validation complète dans le monde réel reste à faire.
+
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+Ce projet de robotique a permis de développer une compréhension approfondie des systèmes multi-agents et des défis associés à leur coordination. Bien que l'objectif final d'implémentation dans un environnement réel n'ait pas été atteint, les résultats obtenus dans la simulation constituent une base solide pour des travaux futurs. Les améliorations apportées aux lois de commande et aux mécanismes d'évitement de collision offrent des perspectives intéressantes pour des applications pratiques. La mise en place dans le monde réel reste un défi à relever, mais ce projet a jeté les bases nécessaires pour des avancées dans ce domaine.
+
+\end{document}

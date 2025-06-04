@@ -1,0 +1,172 @@
+\documentclass[a0,landscape]{a0poster}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage{mdframed}
+
+% Définition du style militaire pour les boîtes
+\newmdenv[
+    backgroundcolor=militarygreen, % Fond vert militaire pour les boîtes
+    linecolor=white, % Bordure blanche
+    fontcolor=white, % Texte en blanc
+    linewidth=2pt,
+    roundcorner=10pt, % Angles arrondis
+    topline=false,
+    bottomline=false,
+    leftline=true,
+    rightline=true,
+    skipabove=10pt,
+    skipbelow=10pt,
+    innertopmargin=10pt,
+    innerbottommargin=10pt,
+    innerleftmargin=10pt,
+    innerrightmargin=10pt
+]{militarybox}
+
+\usepackage{fontawesome}
+\usepackage{geometry}
+\usepackage{anyfontsize} % Pour permettre n'importe quelle taille de police
+
+% Réduire les marges pour tout faire tenir sur une page
+\geometry{margin=1cm}
+
+% Couleurs militaires
+\definecolor{militarygreen}{RGB}{53, 94, 59} % Vert militaire
+\definecolor{khaki}{RGB}{189, 183, 107} % Kaki
+\definecolor{darkgray}{RGB}{45, 45, 45} % Gris foncé
+\definecolor{deserttan}{RGB}{210, 180, 140} % Beige désert
+\definecolor{camouflage}{RGB}{120, 134, 107} % Camouflage
+\definecolor{militaryblue}{RGB}{55, 94, 151} % Bleu militaire
+\definecolor{burgundy}{RGB}{128, 0, 32} % Bordeaux (rouge militaire)
+
+% Ajout d'un fond crème pour la page
+\pagecolor{deserttan}
+
+% Titres avec taille réduite
+\renewcommand{\section}[1]{\noindent\color{militarygreen}\Large\bfseries #1\\[0.5ex]}
+\renewcommand{\subsection}[1]{\noindent\color{militarygreen}\large\bfseries #1\\[0.3ex]}
+
+% Marges
+\setlength{\columnsep}{1.5cm}
+\setlength{\columnseprule}{0pt}
+
+% Réduire l'espacement des éléments de liste
+\setlist{noitemsep,topsep=0pt,parsep=0pt,partopsep=0pt,leftmargin=*}
+
+\begin{document}
+\begin{militarybox}
+\begin{center}
+    {\LARGE\bfseries\sffamily \textcolor{khaki}{SIMULATION DE ROBOTS MILITAIRES}}\\[0.5ex]
+    \normalsize\textbf{\textcolor{white}{Groupe n°\ldots:}} \textcolor{deserttan}{Étudiant 1, Étudiant 2, Étudiant 3, Étudiant 4}\\[1ex]
+    
+    % Logo CentraleSupélec
+    \includegraphics[height=3cm]{logo_cs.jpg}
+\end{center}
+\end{militarybox}
+
+\vspace{0.5cm}
+
+% Utilisation de minipage pour créer un layout à 4 quadrants
+\begin{center}
+\begin{minipage}[t]{0.49\linewidth}
+    % Quadrant 1 (haut gauche)
+    \begin{militarybox}
+    \begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=1cm]
+        \item Systèmes multi-robots pour simulation de champ de bataille
+        \item Défis: coordination des unités, réponse aux menaces\ldots
+        \item État de l'art: technologies actuelles en robotique militaire
+    \end{enumerate}
+
+    \vspace{0.5ex}
+    \textbf{Objectif:} Simuler des scénarios de guerre avec flotte de robots autonomes
+
+    \vspace{0.5ex}
+    \begin{center}
+    \includegraphics[width=0.9\linewidth]{example-image} % Première figure
+    \end{center}
+    \end{militarybox}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\linewidth}
+    % Quadrant 2 (haut droit)
+    \begin{militarybox}
+    \begin{itemize}
+        \item \textbf{Description:} Simulation d'une manœuvre d'encerclement et de neutralisation
+        \item \textbf{Modèle et hypothèses:} 
+        \[
+            \dot{x}(t) = A x(t) + B u(t) + D p(t)
+        \]
+        où $p(t)$ représente les perturbations du terrain
+    \end{itemize}
+    
+    \vspace{0.5ex}
+    \begin{center}
+    \includegraphics[width=0.9\linewidth]{example-image-a} % Deuxième figure
+    \end{center}
+    \end{militarybox}
+\end{minipage}
+
+\vspace{0.5cm}
+
+\begin{minipage}[t]{0.49\linewidth}
+    % Quadrant 3 (bas gauche)
+    \begin{militarybox}
+    \begin{itemize}
+        \item Algorithmes de formation en V et stratégies d'évitement d'obstacles
+        \item Optimisation de la trajectoire sous contraintes de sécurité et de terrain
+    \end{itemize}
+    
+    \vspace{0.5ex}
+    \begin{center}
+        \footnotesize
+        \rowcolors{2}{khaki!20}{darkgray!20}
+        \begin{tabular}{lcc}
+            \toprule
+            \textbf{Critère} & \textbf{Stratégie Alpha} & \textbf{Stratégie Delta} \\
+            \midrule
+            Temps d'exécution & 45s & 32s \\
+            Précision de tir & 87\% & 91\% \\
+            Vulnérabilité & Faible & Moyenne \\
+            \bottomrule
+        \end{tabular}
+    \end{center}
+    \end{militarybox}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\linewidth}
+    % Quadrant 4 (bas droit)
+    \begin{militarybox}
+    \begin{itemize}
+        \item Taux de réussite des missions: 92\% pour les scénarios d'attaque coordonnée
+        \item Analyse de la résilience face aux contre-mesures ennemies
+    \end{itemize}
+    
+    \vspace{0.5cm}
+    \subsection{Conclusions et Perspectives}
+    \begin{itemize}
+        \item Performances supérieures avec la stratégie d'encerclement puis neutralisation
+        \item Robustesse face aux perturbations environnementales
+        \item Perspectives: intégration de capacités de reconnaissance et d'apprentissage par renforcement
+    \end{itemize}
+    \end{militarybox}
+\end{minipage}
+\end{center}
+
+\vfill
+\begin{militarybox}
+\begin{flushleft}
+\footnotesize\textcolor{khaki}{
+{[}1{]} Systèmes multi-robots dans les applications militaires (Military Robotics Journal, 2023) \hfill
+{[}2{]} Algorithmes de coordination pour drones de combat \hfill
+{[}3{]} Simulation de théâtres d'opérations avec flottes hétérogènes \hfill
+{[}4{]} Robotarium: plateforme multi-agents pour scénarios militaires
+}
+\end{flushleft}
+\end{militarybox}
+
+\end{document}

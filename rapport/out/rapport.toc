@@ -1,0 +1,14 @@
+\contentsline {section}{Introduction}{2}{Doc-Start}%
+\contentsline {section}{Description du Projet}{2}{Doc-Start}%
+\contentsline {subsection}{Conception du Scénario}{2}{section*.1}%
+\contentsline {subsection}{Simulation}{2}{section*.1}%
+\contentsline {section}{Objectif Final}{2}{section*.1}%
+\contentsline {section}{Contexte du Projet}{2}{section*.1}%
+\contentsline {section}{Méthodologie}{2}{section*.1}%
+\contentsline {subsection}{Leader-Follower et Stratégies de Commande}{2}{section*.2}%
+\contentsline {subsection}{Choix des Lois de Commande}{3}{section*.2}%
+\contentsline {subsection}{Implémentation et Tuning}{3}{section*.2}%
+\contentsline {section}{Difficultés Rencontrées}{3}{section*.2}%
+\contentsline {section}{Améliorations pour l'Évitement de Collision}{3}{section*.2}%
+\contentsline {section}{Mise en Place dans le Monde Réel}{3}{section*.2}%
+\contentsline {section}{Conclusion}{3}{section*.2}%
