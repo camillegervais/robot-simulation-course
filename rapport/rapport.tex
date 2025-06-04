@@ -8,6 +8,10 @@
 \usepackage{titlesec}
 \usepackage{tocloft}
 \usepackage{fancyhdr}
+
+% Bibliographie
+\usepackage{biblatex}
+\addbibresource{references.bib}
 \geometry{margin=2cm}
 
 % Couleurs
@@ -67,48 +71,270 @@ Ce rapport présente le projet de robotique mené sur une période de deux mois.
 \addcontentsline{toc}{section}{Description du Projet}
 \subsection*{Conception du Scénario}
 \addcontentsline{toc}{subsection}{Conception du Scénario}
-Le scénario développé impliquait la manipulation de robots terrestres et de drones. Les robots étaient commandés en vitesse à l'aide de lois de commande, avec comme seul retour leur position, initialement fournie par la simulation. Cette approche visait à simuler des situations réalistes où les capteurs des robots fournissent des données limitées.
+Le scénario développé dans ce projet implique la manipulation de robots terrestres et de drones dans un environnement simulé. L'objectif est de coordonner ces robots pour accomplir des missions complexes, telles que la formation en groupe, l'évitement d'obstacles, et la descente contrôlée des drones. Les robots sont initialement positionnés selon des configurations spécifiques pour faciliter leur coordination.
 
-\subsection*{Simulation}
-\addcontentsline{toc}{subsection}{Simulation}
-Une simulation a été créée pour observer le comportement des robots commandés. Cette simulation permettait de tester les lois de commande et d'analyser la coordination entre les robots terrestres et les drones. Les résultats obtenus ont permis d'identifier les défis liés à la gestion des systèmes multi-agents.
+Ce scénario de contrôle des robots provient d'une mise en scène qui s'inspire des noms des robots utilisés. Le voici:\\
 
-\section*{Objectif Final}
-\addcontentsline{toc}{section}{Objectif Final}
-L'objectif final du projet était d'implémenter la simulation dans une volière, en utilisant l'environnement ROS2. Cette implémentation aurait permis de visualiser la séquence sous nos yeux, offrant une validation pratique des concepts développés. Malheureusement, nous n'avons pas réussi à atteindre cet objectif en raison de contraintes techniques et de temps.
+Il était une fois, après une discussion houleuse pendant le dîner, le général Burger et le soldat Waffle qui se sont déclarés la guerre pour savoir lequel d'entre eux vaincra Monsieur Moutarde.
+Le général Burger est attendu pour une réunion très importante au Pincher pour discuter de la suite de la guerre. Cependant, ses positions ont été divulguées et le soldat Waffle va tenter de le tuer...  Le principal souci est d'avoir un moyen de transport infaillible tout en se défendant contre les délinquants.\\
 
-\section*{Contexte du Projet}
-\addcontentsline{toc}{section}{Contexte du Projet}
-Le projet s'inscrit dans le cadre plus large de l'étude et de la recherche sur les systèmes multi-agents, en particulier dans le domaine de la robotique. Les systèmes multi-agents sont des systèmes composés de plusieurs agents (robots, drones, etc.) qui interagissent entre eux et avec leur environnement pour atteindre des objectifs communs ou individuels. La coordination et la communication entre ces agents sont essentielles pour le succès de missions complexes.
+Cette mise en scène, bien que fictive, montre que l'utilisation de robot terrestre et de drone prend de plus en plus d'importance dans la façon dont les grandes nations font la guerre. 
+En effet, le 1\textsuperscript{er} juin 2025, l'Ukraine a mené une attaque coordonnée sur quatre bases aériennes russes en lançant 117 drones FPV, illustrant l'importance croissante des drones dans les conflits modernes. Ces systèmes, peu coûteux mais efficaces, permettent de mener des frappes ciblées à distance avec un risque humain réduit. Cette opération témoigne d'une évolution tactique vers une guerre automatisée mêlant reconnaissance, frappe et saturation ennemie~\cite{lemonde2025}.
 
-\section*{Méthodologie}
-\addcontentsline{toc}{section}{Méthodologie}
-\subsection*{Leader-Follower et Stratégies de Commande}
-\addcontentsline{toc}{subsection}{Leader-Follower et Stratégies de Commande}
-Dans le cadre de ce projet, nous avons exploré la méthode Leader-Follower, où un agent leader guide les autres agents (suiveurs) vers un objectif commun. Cette méthode s'est avérée efficace pour la coordination des mouvements des robots et des drones.
+Ce scénario utilise deux équipes de robots qui intéragissent entre eux et évoluent dans un environnement proche, il faudra donc que la gestion des collisions soient efficaces afin d'éviter tous contacts qui tout comme dans le cas d'une bataille, ferait échouer la mission.
 
-\subsection*{Choix des Lois de Commande}
-\addcontentsline{toc}{subsection}{Choix des Lois de Commande}
-Les lois de commande déterminent comment les robots et les drones réagissent aux commandes reçues et à leur environnement. Nous avons choisi des lois de commande basées sur des modèles mathématiques des systèmes, permettant une prédiction et un contrôle précis des mouvements.
+\subsection*{Robots Utilisés et Leur Dynamique}
+\addcontentsline{toc}{subsection}{Robots Utilisés et Leur Dynamique}
+Les robots utilisés dans ce projet incluent :
+\begin{itemize}
+    \item \textbf{DCA} : Robot terrestre avec dynamique de type \textit{singleIntegrator3D}.
+    \item \textbf{Burger} : Véhicule terrestre avec dynamique de type \textit{unicycle}.
+    \item \textbf{Waffle} : Robot terrestre avec dynamique de type \textit{unicycle}.
+    \item \textbf{RMTT} : Drone avec dynamique de type \textit{singleIntegrator3D}.
+    \item \textbf{DCA\_SI} : Robot terrestre immobile ou avec dynamique de type \textit{singleIntegrator3D}.
+\end{itemize}
 
-\subsection*{Implémentation et Tuning}
-\addcontentsline{toc}{subsection}{Implémentation et Tuning}
-L'implémentation des lois de commande a été réalisée dans l'environnement de simulation, suivie d'une phase de tuning pour ajuster les paramètres des lois de commande. Cette étape était cruciale pour assurer la stabilité et la réactivité des robots et des drones dans la simulation.
+\subsection*{Dynamiques des Robots et Défis de Contrôle}
+\addcontentsline{toc}{subsection}{Dynamiques des Robots et Défis de Contrôle}
+Les dynamiques des robots utilisées dans la simulation sont variées et adaptées à leurs rôles spécifiques. Voici les dynamiques principales :
 
-\section*{Difficultés Rencontrées}
-\addcontentsline{toc}{section}{Difficultés Rencontrées}
-Plusieurs difficultés ont été rencontrées au cours du projet, notamment des problèmes de communication entre les agents, des défis liés à la modélisation précise des dynamiques des robots et des drones, ainsi que des limitations de la simulation. La gestion de ces difficultés a nécessité des ajustements itératifs des lois de commande et des stratégies de coordination.
+\begin{itemize}
+    \item \textbf{Unicycle Dynamics} :
+    \begin{equation*}
+    \begin{aligned}
+    \dot{x} &= v \cos(\theta), \\
+    \dot{y} &= v \sin(\theta), \\
+    \dot{\theta} &= \omega,
+    \end{aligned}
+    \end{equation*}
+    \noindent où $v$ est la vitesse linéaire, $\omega$ est la vitesse angulaire, et $\theta$ est l'orientation. Cette dynamique est utilisée pour les robots terrestres tels que \textit{Burger} et \textit{Waffle}. Les défis incluent :
+    \begin{itemize}
+        \item \textbf{Mouvements réduits} : La dynamique ne permet des mouvements de translations que dans la direction de l'avant du robot, ce qui rend certains mouvements impossibles.
+        \item \textbf{Coordination} : Cette dynamique plus simple rend l'évitement de collision plus compliqué puisque certains mouvements demandent plus de temps à être effectués pour contourner.
+    \end{itemize}
 
-\section*{Améliorations pour l'Évitement de Collision}
-\addcontentsline{toc}{section}{Améliorations pour l'Évitement de Collision}
-L'évitement de collision est un aspect critique dans la manipulation de plusieurs robots et drones. Des améliorations ont été apportées aux lois de commande pour intégrer des mécanismes d'évitement de collision, basés sur des capteurs et des algorithmes de détection d'obstacles.
+    \item \textbf{Single Integrator Dynamics (3D)} :
+    \begin{equation*}
+    \begin{aligned}
+    \dot{x} &= v_x, \\
+    \dot{y} &= v_y, \\
+    \dot{z} &= v_z,
+    \end{aligned}
+    \end{equation*}
+    \noindent où $v_x$, $v_y$, et $v_z$ sont les composantes de la vitesse dans les directions $x$, $y$, et $z$. Cette dynamique est utilisée pour les drones tels que \textit{RMTT} et \textit{DCA\_SI}. Les défis incluent :
+    \begin{itemize}
+        \item \textbf{Oscillations} : Implémenter des trajectoires oscillantes pour les drones, cette trajectoire plus compliquée demande de faire une implémentation plus approfondies en simulation.
+        \item \textbf{Stabilité} : Maintenir une stabilité dans les mouvements en 3D, avec des correcteurs plus complexes afin d'optimiser le comportement.
+    \end{itemize}
 
-\section*{Mise en Place dans le Monde Réel}
-\addcontentsline{toc}{section}{Mise en Place dans le Monde Réel}
-La mise en place du système dans un environnement réel présente des défis supplémentaires, notamment en termes de calibration des capteurs, de fiabilité des communications et de robustesse des lois de commande face à des perturbations imprévues. Des tests préliminaires ont été réalisés avec succès, mais une validation complète dans le monde réel reste à faire.
+    \item \textbf{Stationary Dynamics} :
+    \begin{equation*}
+    \begin{aligned}
+    \dot{x} &= 0, \\
+    \dot{y} &= 0, \\
+    \dot{z} &= 0,
+    \end{aligned}
+    \end{equation*}
+    \noindent Cette dynamique est utilisée pour les robots immobiles tels que \textit{DCA\_SI} dans certaines phases de la simulation. Leur implémentation est notamment due à des contraintes de codes, en effet une flotte avec des robots de même types ne peut pas contenir qu'un seul robot. Il faut donc créer des robots immobiles pour y remédier. Les défis dans l'implémentation de ces robots incluent :
+    \begin{itemize}
+        \item \textbf{Interaction avec les robots mobiles} : Assurer que les robots immobiles n'interfèrent pas avec les trajectoires des robots mobiles.
+    \end{itemize}
+\end{itemize}
+
+Ces dynamiques sont intégrées dans la simulation avec des lois de commande spécifiques pour répondre aux défis mentionnés. Cela permet de tester et valider les comportements des robots dans un environnement simulé avant leur déploiement réel.
+
+\subsection*{Choix des Leaders-Followers et Stratégies de Commande}
+\addcontentsline{toc}{subsection}{Choix des Leaders-Followers et Stratégies de Commande}
+La stratégie \textit{Leader-Follower} a été adoptée pour coordonner les robots. Dans cette approche, un robot leader guide les autres robots (followers) vers un objectif commun. Par exemple, le robot \textit{DCA} agit comme leader, tandis que les autres robots suivent sa trajectoire en ajustant leur position et orientation.
+
+\subsection*{Phases de la Simulation et Rôles des Robots}
+\addcontentsline{toc}{subsection}{Phases de la Simulation et Rôles des Robots}
+La simulation est divisée en plusieurs phases distinctes, chacune ayant des objectifs spécifiques et impliquant des rôles particuliers pour les robots :
+
+\begin{itemize}
+    \item \textbf{Phase de Formation} :
+    \begin{itemize}
+        \item Objectif : Les robots ajustent leur position pour maintenir une formation prédéfinie.
+        \item Rôles :
+        \begin{itemize}
+            \item \textbf{DCA} : Agit comme leader et guide les autres robots vers la formation cible.
+            \item \textbf{Burger} : Suivent le leader en ajustant leur position relative.
+            \item \textbf{Waffle} : Maintient une position fixe à l'opposé de la formation pour équilibrer la structure.
+            \item \textbf{RMTT} : Drone qui surveille la formation depuis une altitude élevée.
+            \item \textbf{DCA\_SI} : Suiveur immobile qui reste en position pour éviter les interférences.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Phase Forward} :
+    \begin{itemize}
+        \item Objectif : Les robots avancent en ligne droite vers un objectif défini.
+        \item Rôles :
+        \begin{itemize}
+            \item \textbf{DCA} : Continue de guider la flotte en tant que leader.
+            \item \textbf{Burger} : Maintiennent leur position relative tout en avançant.
+            \item \textbf{Waffle} : Suit le leader tout en restant à l'opposé de la formation.
+            \item \textbf{RMTT} : Drone qui surveille les mouvements de la flotte.
+            \item \textbf{DCA\_SI} : Suiveur immobile qui reste en position.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Phase de Danse} :
+    \begin{itemize}
+        \item Objectif : Les robots effectuent une danse circulaire autour du robot \textit{Waffle}.
+        \item Rôles :
+        \begin{itemize}
+            \item \textbf{DCA} : Participe à la danse en suivant une trajectoire circulaire.
+            \item \textbf{Burger} : Effectuent des mouvements synchronisés autour du \textit{Waffle}.
+            \item \textbf{Waffle} : Sert de centre de la danse.
+            \item \textbf{RMTT} : Drone qui surveille la danse depuis une altitude élevée.
+            \item \textbf{DCA\_SI} : Reste immobile pour éviter les interférences.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Phase d'Oscillation des Drones} :
+    \begin{itemize}
+        \item Objectif : Les drones oscillent au-dessus du \textit{Waffle} pour simuler des trajectoires complexes.
+        \item Rôles :
+        \begin{itemize}
+            \item \textbf{RMTT} : Effectue des oscillations en altitude pour surveiller la flotte.
+            \item \textbf{Waffle} : Sert de point de référence pour les oscillations.
+            \item \textbf{DCA}, \textbf{Burger}, \textbf{DCA\_SI} : Maintiennent leur position pour éviter les interférences.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+Ces phases permettent de tester les capacités de coordination, de navigation et de contrôle des robots dans des scénarios variés.
+
+\subsection*{Lois de Commande}
+\addcontentsline{toc}{subsection}{Lois de Commande}
+Les lois de commande utilisées dans ce projet incluent :
+\begin{itemize}
+    \item \textbf{Formation} : Les robots ajustent leur position pour maintenir une formation spécifique. La loi de commande est donnée par :
+    \[
+    \mathbf{u}_i = -k_p (\mathbf{x}_i - \mathbf{x}_\text{ref}),
+    \]
+    \noindent où $\mathbf{x}_i$ est la position du robot $i$, $\mathbf{x}_\text{ref}$ est la position de référence, et $k_p$ est un gain proportionnel.
+    \item \textbf{Suivi de Trajectoire} : Les robots suivent une trajectoire prédéfinie en ajustant leur vitesse et orientation. La loi de commande est donnée par :
+    \[
+    \mathbf{u}_i = -k_p (\mathbf{x}_i - \mathbf{x}_\text{target}) + k_d \dot{\mathbf{x}}_i,
+    \]
+    \noindent où $\mathbf{x}_i$ est la position actuelle du robot $i$, $\mathbf{x}_\text{target}$ est la position cible, $k_p$ est un gain proportionnel, et $k_d$ est un gain dérivé pour stabiliser le mouvement.
+    \item \textbf{Évitement de Collision} : Les robots détectent et évitent les obstacles en ajustant leur trajectoire. La loi de commande est donnée par :
+    \[
+    \mathbf{u}_i = -k_p \nabla \phi(\mathbf{x}_i),
+    \]
+    \noindent où $\phi(\mathbf{x}_i)$ est une fonction de potentiel qui augmente près des obstacles.
+    \item \textbf{Oscillation des Drones} : Les drones oscillent au-dessus des robots terrestres en suivant des trajectoires sinusoidales. La loi de commande est donnée par :
+    \[
+    \begin{aligned}
+    \dot{x} &= A_x \sin(\omega_x t), \\
+    \dot{y} &= A_y \cos(\omega_y t), \\
+    \dot{z} &= k_z (z_\text{target} - z),
+    \end{aligned}
+    \]
+    \noindent où $A_x$ et $A_y$ sont les amplitudes, $\omega_x$ et $\omega_y$ sont les fréquences, et $k_z$ est un gain proportionnel pour la descente en $z$.
+\end{itemize}
+
+\subsection*{Zoom: Fonction de Potentiel pour l'Évitement de Collision}
+\addcontentsline{toc}{subsection}{Fonction de Potentiel pour l'Évitement de Collision}
+Pour assurer une navigation sûre et maintenir l'intégrité de la formation, un mécanisme d'évitement de collision est implémenté en utilisant une fonction de potentiel. Cette fonction applique des forces de répulsion aux robots suiveurs (à l'exclusion du leader et des robots stationnaires) lorsqu'ils s'approchent les uns des autres dans un rayon défini.
+
+La force de répulsion \( u[i, :] \) pour chaque robot \( i \) est calculée comme suit :
+\[
+    u[i, :] += k_R \cdot \frac{(X[i, :] - X[j, :])}{\|X[i, :] - X[j, :]\|} \cdot \left(1 - \frac{\|X[i, :] - X[j, :]\|}{\text{avoidance\_radius}^2}\right)^2
+\]
+Où :
+\begin{itemize}
+    \item \( k_R \): Gain pour la force de répulsion.
+    \item \( X[i, :] \): Position du robot \( i \).
+    \item \( X[j, :] \): Position du robot \( j \).
+    \item \( \|X[i, :] - X[j, :]\| \): Distance euclidienne entre les robots \( i \) et \( j \).
+    \item \( \text{avoidance\_radius} \): Rayon dans lequel l'évitement de collision est activé.
+\end{itemize}
+
+Cette fonction de potentiel garantit que la force de répulsion augmente à mesure que la distance entre les robots diminue, empêchant ainsi les collisions. L'atténuation progressive de la force de répulsion à mesure que les robots s'éloignent est réalisée grâce au terme \( \left(1 - \frac{\|X[i, :] - X[j, :]\|}{\text{avoidance\_radius}^2}\right)^2 \)~\cite{lnr_p4}.
+
+Ce mécanisme est crucial pour maintenir la sécurité et l'efficacité de la flotte de robots pendant les opérations.
+
+\subsection*{Choix des coefficients des Lois de Commande}
+
+Les lois de commandes mises en place n'ont pas été très performantes dès le début, il a donc fallu ajuster les coefficients de chaque loi de commande pour obtenir un comportement satisfaisant. La stratégie pour leur choix est la suivante:
+
+\begin{itemize}
+    \item \textbf{Formation} : Le gain proportionnel \( k_p \) a été ajusté pour assurer que les robots suivent rapidement le leader sans oscillations excessives. Un \( k_p \) trop élevé peut entraîner des oscillations, tandis qu'un \( k_p \) trop bas peut ralentir la réponse.
+    \item \textbf{Suivi de Trajectoire} : Les gains proportionnels \( k_p \) et dérivés \( k_d \) ont été choisis pour équilibrer la rapidité de suivi et la stabilité. Un \( k_p \) élevé permet un suivi rapide, mais peut causer des oscillations, tandis qu'un \( k_d \) élevé aide à amortir ces oscillations. Nous avons donc augmenter la rapidité du système avec un gain proportionnel élevé et pour amortir les oscillations qui sont apparues une fois la rapidité voulues atteinte, nous avons ajouté un gain dérivé \( k_d \) pour stabiliser le mouvement.
+    \item \textbf{Évitement de Collision} : Le gain de répulsion \( k_R \) a été ajusté pour assurer que les robots maintiennent une distance de sécurité sans être trop agressifs, ce qui pourrait perturber la formation. Un \( k_R \) trop élevé peut entraîner des mouvements erratiques, tandis qu'un \( k_R \) trop bas peut ne pas prévenir les collisions efficacement.
+\end{itemize}
+
+L'enjeu du choix des coefficients a été de trouver le bon équilibre entre les valeurs de coefficients entre les différentes lois de commandes. En effet, bien que la valeur absolue des coefficients soit importante, il faut que leurs valeurs relatives soient cohérentes pour que le comportement des lois de commandes combinées n'empiètent pas les uns sur les autres.
+
+\subsection*{Implémentation de la Simulation}
+\addcontentsline{toc}{subsection}{Implémentation de la Simulation}
+La simulation est implémentée en utilisant une structure basée sur des classes, principalement les classes \texttt{FleetSimulation} et \texttt{Robot}. Voici une explication détaillée :
+
+\begin{itemize}
+    \item \textbf{Classe \texttt{FleetSimulation}} :
+    \begin{itemize}
+        \item \textbf{Objectif} : Gérer la simulation d'une flotte de robots, y compris leurs dynamiques, lois de commande, et visualisation.
+        \item \textbf{Caractéristiques principales} :
+        \begin{itemize}
+            \item \textbf{Initialisation} : Définit la flotte de robots, le temps de début (\texttt{t0}), le temps de fin (\texttt{tf}), et le pas de temps (\texttt{dt}).
+            \item \textbf{Gestion des données} : Collecte et stocke les données sur les états des robots, leurs trajectoires, et les entrées de commande au fil du temps.
+            \item \textbf{Visualisation} : Fournit des méthodes pour animer les mouvements des robots en 2D et 3D, tracer les trajectoires, et afficher les entrées de commande.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Classe \texttt{Robot}} :
+    \begin{itemize}
+        \item \textbf{Objectif} : Représenter des robots individuels avec des dynamiques et des états spécifiques.
+        \item \textbf{Caractéristiques principales} :
+        \begin{itemize}
+            \item \textbf{Initialisation} : Configure les dynamiques du robot (par exemple, \texttt{singleIntegrator2D}, \texttt{unicycle}) et son état initial.
+            \item \textbf{Gestion des états} : Maintient l'état actuel du robot (par exemple, position, orientation) et le met à jour en fonction des entrées de commande.
+            \item \textbf{Conversion des commandes} : Convertit les entrées de vitesse cartésienne en vitesses linéaires et angulaires pour les robots avec des dynamiques de type \texttt{unicycle}.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Workflow de la Simulation} :
+    \begin{itemize}
+        \item \textbf{Création de Flottes} : Les robots sont instanciés à l'aide de la classe \texttt{Robot} et regroupés en flottes. Chaque flotte est assignée des dynamiques spécifiques et des positions initiales.
+        \item \textbf{Algorithmes de Commande} : Les lois de commande (par exemple, formation, suivi de trajectoire, évitement de collision) sont appliquées pour calculer les entrées de vitesse pour chaque robot. Des algorithmes spécialisés comme \texttt{drone\_oscillation\_3d} gèrent des comportements complexes tels que les oscillations des drones.
+        \item \textbf{Intégration} : La classe \texttt{FleetSimulation} intègre le mouvement de tous les robots au fil du temps en utilisant les entrées de commande calculées.
+        \item \textbf{Visualisation} : La simulation fournit des animations en temps réel des mouvements des robots en 2D et 3D. Les trajectoires, états, et entrées de commande sont tracés pour l'analyse.
+    \end{itemize}
+\end{itemize}
+
+Cette structure permet de tester les capacités de coordination, de navigation, et de contrôle des robots dans des scénarios variés.
+
+\subsection*{Implémentation dans ROS2}
+\addcontentsline{toc}{subsection}{Implémentation dans ROS2}
+L'implémentation dans ROS2 nécessite l'adaptation des lois de commande et des dynamiques des robots pour fonctionner avec les outils et les bibliothèques de ROS2. Cela inclut l'utilisation de messages ROS pour communiquer entre les différents composants du système, ainsi que l'adaptation des boucles de contrôle pour fonctionner avec le système de temps de ROS2.
+
+Les principales étapes de l'implémentation dans ROS2 incluent :
+\begin{itemize}
+    \item \textbf{Conversion des dynamiques} : Les dynamiques des robots ont été converties en nœuds ROS, permettant leur intégration dans l'écosystème ROS2.
+    \item \textbf{Publication et abonnement aux messages} : Les robots publient leur état (position, vitesse, etc.) et s'abonnent aux messages de commande pour recevoir les instructions du leader.
+    \item \textbf{Utilisation des services ROS2} : Des services ROS2 ont été utilisés pour permettre une communication bidirectionnelle entre les robots et le serveur de simulation.
+    \item \textbf{Gestion des temporisations} : Les temporisations ont été gérées à l'aide des outils de temps de ROS2 pour synchroniser les mises à jour des états des robots et l'envoi des commandes.
+\end{itemize}
 
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
-Ce projet de robotique a permis de développer une compréhension approfondie des systèmes multi-agents et des défis associés à leur coordination. Bien que l'objectif final d'implémentation dans un environnement réel n'ait pas été atteint, les résultats obtenus dans la simulation constituent une base solide pour des travaux futurs. Les améliorations apportées aux lois de commande et aux mécanismes d'évitement de collision offrent des perspectives intéressantes pour des applications pratiques. La mise en place dans le monde réel reste un défi à relever, mais ce projet a jeté les bases nécessaires pour des avancées dans ce domaine.
+Ce projet de robotique a permis d'explorer la coordination de robots terrestres et de drones dans un environnement simulé. Les principales réalisations incluent :
+
+\begin{itemize}
+    \item L'implémentation réussie de différentes dynamiques de robots (unicycle, single integrator)
+    \item La mise en place de stratégies de formation et d'évitement de collisions
+    \item Le développement de lois de commande robustes pour la coordination des robots
+    \item La transition vers une implémentation ROS2 pour des applications réelles
+\end{itemize}
+
+Les défis rencontrés, notamment dans la gestion des dynamiques différentes et la coordination inter-flottes, ont été surmontés grâce à des solutions techniques appropriées. Ce travail pose les bases pour de futures applications dans des scénarios réels de robotique collaborative.
+
+% Ajout de la section Bibliographie
+\newpage
+\section*{Bibliographie}
+\addcontentsline{toc}{section}{Bibliographie}
+\printbibliography[heading=none]
 
 \end{document}

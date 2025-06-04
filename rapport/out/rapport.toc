@@ -1,14 +1,13 @@
 \contentsline {section}{Introduction}{2}{Doc-Start}%
 \contentsline {section}{Description du Projet}{2}{Doc-Start}%
 \contentsline {subsection}{Conception du Scénario}{2}{section*.1}%
-\contentsline {subsection}{Simulation}{2}{section*.1}%
-\contentsline {section}{Objectif Final}{2}{section*.1}%
-\contentsline {section}{Contexte du Projet}{2}{section*.1}%
-\contentsline {section}{Méthodologie}{2}{section*.1}%
-\contentsline {subsection}{Leader-Follower et Stratégies de Commande}{2}{section*.2}%
-\contentsline {subsection}{Choix des Lois de Commande}{3}{section*.2}%
-\contentsline {subsection}{Implémentation et Tuning}{3}{section*.2}%
-\contentsline {section}{Difficultés Rencontrées}{3}{section*.2}%
-\contentsline {section}{Améliorations pour l'Évitement de Collision}{3}{section*.2}%
-\contentsline {section}{Mise en Place dans le Monde Réel}{3}{section*.2}%
-\contentsline {section}{Conclusion}{3}{section*.2}%
+\contentsline {subsection}{Robots Utilisés et Leur Dynamique}{2}{section*.1}%
+\contentsline {subsection}{Dynamiques des Robots et Défis de Contrôle}{3}{section*.1}%
+\contentsline {subsection}{Choix des Leaders-Followers et Stratégies de Commande}{4}{section*.1}%
+\contentsline {subsection}{Phases de la Simulation et Rôles des Robots}{4}{section*.1}%
+\contentsline {subsection}{Lois de Commande}{5}{section*.1}%
+\contentsline {subsection}{Fonction de Potentiel pour l'Évitement de Collision}{5}{section*.1}%
+\contentsline {subsection}{Implémentation de la Simulation}{6}{section*.1}%
+\contentsline {subsection}{Implémentation dans ROS2}{7}{section*.1}%
+\contentsline {section}{Conclusion}{8}{section*.1}%
+\contentsline {section}{Bibliographie}{9}{section*.1}%
