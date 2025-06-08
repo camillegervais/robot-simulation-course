@@ -24,8 +24,8 @@
 \titleformat{\subsection}{\color{khaki}\large\bfseries}{\thesubsection}{1em}{}
 
 % Augmentation de l'écartement entre les éléments dans la table des matières
-\renewcommand{\cftsecafterpnum}{\vspace{0.3em}} % Augmentation de l'espacement
-\renewcommand{\cftsubsecafterpnum}{\vspace{0.2em}} % Augmentation de l'espacement
+\renewcommand{\cftsecafterpnum}{\vspace{1em}} % Augmente l'espacement après les sections
+\renewcommand{\cftsubsecafterpnum}{\vspace{1em}} % Augmente l'espacement après les sous-sections
 
 % Ajout d'un pied de page propre
 \pagestyle{fancy}
@@ -41,8 +41,8 @@
 \begin{titlepage}
 \begin{center}
     \includegraphics[width=0.3\textwidth]{logo_cs.jpg}\\[1cm] % Logo de l'école
-    {\Huge\textbf{Rapport de Projet de Robotique}}\\[0.5cm]
-    \textbf{Groupe n°7 : Étudiant 1, Étudiant 2, Étudiant 3, Étudiant 4}\\[1cm]
+    {\Huge\textbf{Systèmes Dynamiques multi-agents}}\\[0.5cm]
+    \textbf{Groupe n°7\\Paul BOURGOIS, Aymeric ARNAUD, Camille GERVAIS, Joseph GUERIN}\\[1cm]
     \textbf{Date : \today}\\[1cm]
     \textbf{École CentraleSupélec}\\[1cm]
     \vfill
@@ -68,7 +68,68 @@
 Ce rapport présente le projet de robotique mené sur une période de deux mois. L'objectif principal était de concevoir un scénario permettant de manipuler des robots terrestres et des drones dans un environnement simulé. Ce projet s'inscrit dans le cadre de l'étude des systèmes multi-agents et de leur coordination dans des situations complexes.
 
 \section*{Description du Projet}
-\addcontentsline{toc}{section}{Description du Projet}
+\subsection*{Applications des Grandes Flottes de Drones}
+
+Le déploiement d'une grande flotte coordonnée de drones ouvre de toutes nouvelles possibilités dans les domaines civils et militaires. Ces systèmes apportent de l’échelle, de la rapidité et de la redondance—en particulier lorsque les moyens traditionnels sont lents, coûteux ou vulnérables. Voici les principaux domaines dans lesquels les grandes flottes de drones ont le potentiel de transformer les opérations.
+
+\subsubsection*{Agriculture}
+
+L’agriculture de précision a déjà adopté la technologie des drones, mais le passage à des flottes de grande taille permet de transformer des régions entières. Avec des dizaines ou des centaines de drones opérant en parallèle, les agriculteurs et agronomes peuvent :
+\begin{itemize}
+    \item \textbf{Cartographier et surveiller la santé des cultures} grâce à des images haute résolution en temps réel, permettant d’identifier les maladies, le stress hydrique ou les carences nutritives suffisamment tôt pour agir.
+    \item \textbf{Appliquer des traitements de manière ciblée} via des pulvérisations coordonnées avec dosage variable, s’adaptant aux besoins spécifiques de chaque segment de champ—économisant le produit et réduisant le ruissellement.
+    \item \textbf{Suivre le bétail et détecter des anomalies} sur de vastes pâturages ou des terrains difficiles d’accès grâce à l’imagerie thermique ou à l’analyse des schémas de mouvement.
+    \item \textbf{Automatiser l’estimation des rendements} en capturant des données multispectrales au fil du temps, ce qui permet de prévoir les récoltes avec une meilleure précision.
+\end{itemize}
+
+\subsubsection*{Réponse aux Catastrophes}
+
+Dans les heures chaotiques qui suivent une catastrophe naturelle ou humaine, une vue aérienne rapide peut sauver des vies. Une grande flotte de drones peut :
+\begin{itemize}
+    \item \textbf{Effectuer des recherches et sauvetages à large échelle} en couvrant des dizaines de kilomètres carrés, à l’aide de caméras infrarouges pour repérer les survivants sous les décombres ou la végétation.
+    \item \textbf{Cartographier les dégâts aux infrastructures et au terrain} (ponts effondrés, zones inondées, glissements de terrain), même lorsque l’accès terrestre est bloqué ou trop dangereux.
+    \item \textbf{Livrer des fournitures critiques} (médicaments, nourriture, équipements de communication) dans des zones isolées ou assiégées, avec plusieurs drones volant en parallèle ou en chaîne de relais.
+    \item \textbf{Maintenir les communications} dans des zones déconnectées en agissant comme un réseau maillé aérien temporaire pour les secours ou les civils.
+\end{itemize}
+
+\subsubsection*{Logistique}
+
+Alors que les drones sont déjà utilisés pour la livraison du dernier kilomètre, les grandes flottes offrent un modèle logistique hautement réactif et distribué. Avec l’infrastructure adéquate, elles peuvent :
+\begin{itemize}
+    \item \textbf{Permettre la livraison juste-à-temps} dans des environnements urbains denses ou des zones rurales, notamment là où la circulation routière ou le terrain rendent la livraison traditionnelle lente ou peu fiable.
+    \item \textbf{Assurer le transport de fournitures médicales} pour des besoins urgents—comme le sang, les vaccins, les défibrillateurs—entre hôpitaux, laboratoires ou cliniques rurales.
+    \item \textbf{Créer des corridors d’approvisionnement résilients} dans les régions touchées par les conflits, les pandémies ou l’isolement dû au climat.
+    \item \textbf{S’adapter de manière autonome} aux pics de demande soudains (zones sinistrées, logistique d’événements) sans avoir besoin d’augmenter le personnel au sol.
+\end{itemize}
+
+\subsubsection*{Applications Militaires}
+
+Dans un contexte militaire, une grande flotte de drones ne constitue pas seulement un outil, mais un changement de doctrine. Au lieu de dépendre de quelques plateformes coûteuses et vulnérables, des dizaines ou centaines d’unités semi-autonomes et moins onéreuses peuvent être déployées ensemble pour une redondance, une complexité et une profondeur opérationnelle accrues. Les rôles clés incluent :
+
+\begin{itemize}
+    \item \textbf{Renseignement, Surveillance \& Reconnaissance (ISR) :}  
+    Les drones peuvent assurer une couverture aérienne persistante sur une zone d’intérêt, diffuser de la vidéo en direct, cartographier le terrain en 3D, et détecter des mouvements ou changements dans l’environnement, sans mettre en danger de pilotes ni dépendre des satellites.
+
+    \item \textbf{Acquisition de cibles \& correction de tir :}  
+    Équipés de désignateurs laser ou de systèmes de marquage GPS, les drones peuvent localiser des actifs ennemis et guider des munitions ou des tirs d’artillerie. Plusieurs drones observant une même cible sous différents angles permettent une triangulation plus précise et des ajustements en temps réel.
+
+    \item \textbf{Munitions rôdeuses / Drones kamikazes :}  
+    Ce sont des drones armés conçus pour survoler une zone, attendre une cible, puis frapper. Ils combinent capacité de renseignement et de frappe dans un seul dispositif—idéal contre des cibles mobiles ou des actifs de grande valeur dissimulés dans un terrain complexe.
+
+    \item \textbf{Guerre électronique (GE) :}  
+    Des drones équipés de charges utiles RF peuvent brouiller les communications ennemies, leurrer les signaux GPS pour tromper les systèmes adverses, ou agir comme des leurres mobiles pour les armes guidées par radar. En essaim, ils peuvent submerger les systèmes de détection ou générer de fausses signatures de cibles.
+
+    \item \textbf{Relais de communication \& réseautage :}  
+    En milieu dénié ou isolé, les drones peuvent former des réseaux maillés aériens pour restaurer ou étendre les communications. Cela est essentiel pour les opérations conjointes en zone sans GPS ou après brouillage. Le travail en équipe homme-machine (MUM-T) repose fortement sur ces capacités.
+
+    \item \textbf{Combat \& Appui aérien rapproché (CAS) :}  
+    Les drones armés peuvent fournir un feu de suppression, frapper des blindés ennemis ou soutenir les troupes au sol dans des zones contestées. Agissant comme des "ailiers loyaux", ils peuvent accompagner des avions pilotés, absorber les risques ou opérer de manière indépendante derrière les lignes ennemies.
+
+    \item \textbf{Défense de base \& déni de zone :}  
+    Déployés autour des bases avancées ou des infrastructures critiques, les drones peuvent patrouiller les périmètres de manière autonome, détecter les intrusions ou intercepter les menaces entrantes telles que des drones ennemis ou des véhicules—créant une défense dynamique et en couches.
+\end{itemize}
+
+
 \subsection*{Conception du Scénario}
 \addcontentsline{toc}{subsection}{Conception du Scénario}
 Le scénario développé dans ce projet implique la manipulation de robots terrestres et de drones dans un environnement simulé. L'objectif est de coordonner ces robots pour accomplir des missions complexes, telles que la formation en groupe, l'évitement d'obstacles, et la descente contrôlée des drones. Les robots sont initialement positionnés selon des configurations spécifiques pour faciliter leur coordination.
@@ -308,15 +369,24 @@ Cette structure permet de tester les capacités de coordination, de navigation, 
 
 \subsection*{Implémentation dans ROS2}
 \addcontentsline{toc}{subsection}{Implémentation dans ROS2}
-L'implémentation dans ROS2 nécessite l'adaptation des lois de commande et des dynamiques des robots pour fonctionner avec les outils et les bibliothèques de ROS2. Cela inclut l'utilisation de messages ROS pour communiquer entre les différents composants du système, ainsi que l'adaptation des boucles de contrôle pour fonctionner avec le système de temps de ROS2.
+Une fois la simulation fonctionnelle, il a fallu comprendre la fonctionnement de l'implémentation en ROS2 dans la volière. Nous avons tout de suite identifié les attendus et les rendus de la boucle de la machine à  état qui dicte le fonctionnement des robots. Notre code fonctionne ainsi:
 
-Les principales étapes de l'implémentation dans ROS2 incluent :
 \begin{itemize}
-    \item \textbf{Conversion des dynamiques} : Les dynamiques des robots ont été converties en nœuds ROS, permettant leur intégration dans l'écosystème ROS2.
-    \item \textbf{Publication et abonnement aux messages} : Les robots publient leur état (position, vitesse, etc.) et s'abonnent aux messages de commande pour recevoir les instructions du leader.
-    \item \textbf{Utilisation des services ROS2} : Des services ROS2 ont été utilisés pour permettre une communication bidirectionnelle entre les robots et le serveur de simulation.
-    \item \textbf{Gestion des temporisations} : Les temporisations ont été gérées à l'aide des outils de temps de ROS2 pour synchroniser les mises à jour des états des robots et l'envoi des commandes.
+    \item \textbf{En entrée} : La simulation reçoit la position absolue de tous les robots dans le repère de la volière. Cette position est donnée par une odométrie absolue qui fonctionne avec 16 caméras.
+    \item \textbf{En sortie} : La simulation envoie les vitesses attendues pour les robots dans le repère de la volière. Ces vitesses sont calculées en fonction des dynamiques des robots et des lois de commande appliquées.
 \end{itemize}
+
+Cette implémentation est censée être légère en code puisque la simulation a été construite en connaissant le fonctionnement de la colière. Ainsi, il faut juste entrer les fonctions de commande dans le fonctionnement de la volière et sans les rendus de simulation pour faire fonctionner la simulation.\\
+
+Cette simplicité n'est bien sûr pas si évidente et lors de la mise en place dans la simulation nous avons du faire face à plusieurs challenges:
+
+\begin{itemize}
+    \item \textbf{Grand nombre de robots} : Notre code et notre scénario utilise un grand nomnbre de robots et pour simplifier la mise en place du code, il nous a été demandé de ne mettre que certains robots. Nous avons alors fait face aux limitations de notre code en remarquant que celui-ci ne s'adaptait pas bien aux changements de nombre de robots. 
+    \item \textbf{Repères} : Il a fallu s'assurer que les repères utilisés correponsdaient bien entre la simulation et la volière. En effet si les repères sont différents, les écarts de position seront énormes puisque l'odométrie est absolue et les réponses de commande seront aberrantes.
+\end{itemize}
+
+Globalement les essais que nous avons fait dans la volière nous montre la dure réalité de la mise en place de simulations dans un système réel, bien que contrôlé dans le cadre de la volière. La gestion de l'écosystème ROS2 demande de la rigueur dans les codes qui sont utilisés et une bonne compréhension du système global qui gère les commandes de robot.
+
 
 \section*{Conclusion}
 \addcontentsline{toc}{section}{Conclusion}
@@ -326,10 +396,10 @@ Ce projet de robotique a permis d'explorer la coordination de robots terrestres 
     \item L'implémentation réussie de différentes dynamiques de robots (unicycle, single integrator)
     \item La mise en place de stratégies de formation et d'évitement de collisions
     \item Le développement de lois de commande robustes pour la coordination des robots
-    \item La transition vers une implémentation ROS2 pour des applications réelles
+    \item La compréhension des défis liés à l'implémentation dans un environnement ROS2, notamment dans la volière
 \end{itemize}
 
-Les défis rencontrés, notamment dans la gestion des dynamiques différentes et la coordination inter-flottes, ont été surmontés grâce à des solutions techniques appropriées. Ce travail pose les bases pour de futures applications dans des scénarios réels de robotique collaborative.
+Ce projet permet d'appréhender les défis de la commande de plusieurs robots ensemble. Notre choix s'est porté sur le développement d'un scénario avec un nombre importants de robots et des interactions complexes (changement de formations, changement de leader) et non sur une intelligence dans les déplacements. Ce choix nous a forcé à construire des lois de commande complexes pour appréhender les différents cas extrêmes liés à notre scénario. Ce choix nous a aussi demandé de comprendre les mécanismes et les interactions entre les différents termes de la loi de commande pour comprendre les comportements des robots et les adapter.
 
 % Ajout de la section Bibliographie
 \newpage
