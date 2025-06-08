@@ -83,11 +83,59 @@ En effet, le 1\textsuperscript{er} juin 2025, l'Ukraine a mené une attaque coor
 
 Ce scénario utilise deux équipes de robots qui intéragissent entre eux et évoluent dans un environnement proche, il faudra donc que la gestion des collisions soient efficaces afin d'éviter tous contacts qui tout comme dans le cas d'une bataille, ferait échouer la mission.
 
+\subsection*{État actuel de la dynamique des systèmes multi-agents appliquées à notre scénario} 
+\addcontentsline{toc}{subsection}{Etat de l'art}
+
+\subsubsection*{Formation et contrôle de groupe}
+
+Les stratégies de formation de groupe sont inspirées de comportements biologiques (flocking, schooling, swarming). Les algorithmes classiques comme ceux de Reynolds (1987) reposent sur trois principes simples : cohésion, séparation, et alignement. Ces approches ont été adaptées aux systèmes hybrides drone-UGV (Unmanned Ground Vehicle), en introduisant des protocoles de communication inter-plateformes et des modélisations dynamiques hétérogènes.
+
+\subsubsection*{Évitement de collision}
+
+Pour éviter les collisions, on distingue deux grandes familles d’algorithmes :
+\begin{itemize}
+    \item Basés sur la planification de trajectoire (A*, RRT*, etc.)
+    \item Basés sur le potentiel artificiel (champ de forces, fonctions de navigation)
+\end{itemize}
+
+La difficulté s’accroît lorsqu’on traite d’environnements dynamiques et de systèmes multi-agents. Des approches récentes utilisent des réseaux de neurones pour estimer en temps réel les trajectoires optimales en prenant en compte les mouvements des autres agents.
+
+\subsubsection*{Contrôle précis}
+
+La descente précise dans un environnement encombré implique le contrôle fin de la trajectoire, souvent assisté par des données visuelles ou des capteurs embarqués (LiDAR, vision par ordinateur). Les méthodes actuelles s’appuient sur la commande prédictive (MPC) et les algorithmes de SLAM (Simultaneous Localization and Mapping).
+
+\subsubsection*{Communication inter-robot}
+
+La coordination implique nécessairement une communication fiable entre les agents. \\
+On distingue :
+\begin{itemize}
+    \item Les systèmes centralisés, qui demandent une base de contrôle principale.
+    \item Les systèmes distribués, plus robustes mais plus complexes à concevoir.
+\end{itemize}
+
+Les protocoles de communication utilisés doivent supporter les interruptions, les délais, et la redondance. Des standards comme ROS2, ou des protocoles de type MQTT sont souvent utilisés pour assurer une architecture interopérable.
+
+\subsubsection*{Limites existantes}
+
+Malgré de nombreuses avancées, plusieurs défis restent ouverts :
+
+\begin{itemize}
+    \item La gestion de la collision dans des environnements encombrés reste un point faible ;
+    \item La prise de décision autonome face à des événements imprévus (attaque, perte de drone) est encore peu fiable ;
+    \item L’énergie embarquée reste un facteur limitant pour les missions longues ;
+    \item La sécurité des communications est un enjeu critique, notamment dans les applications militaires.
+\end{itemize}
+
+\subsubsection*{Conclusion de l'état de l'art}
+
+L’état de l’art montre que la coordination multi-robots dans des scénarios tactiques est à la fois un sujet d’actualité brûlant et un domaine technique en pleine évolution. Ce projet s’inscrit dans cette dynamique en explorant, dans un environnement simulé, des scénarios de guerre fictive mais plausibles, où drones et robots terrestres interagissent selon des règles tactiques précises. L’objectif est de tester et valider des algorithmes de coordination robustes, capables de répondre à des contraintes de formation, de mobilité, et de sécurité, tout en intégrant une dimension narrative originale pour renforcer l’intelligibilité du scénario.
+
+
 \subsection*{Robots Utilisés et Leur Dynamique}
 \addcontentsline{toc}{subsection}{Robots Utilisés et Leur Dynamique}
 Les robots utilisés dans ce projet incluent :
 \begin{itemize}
-    \item \textbf{DCA} : Robot terrestre avec dynamique de type \textit{singleIntegrator3D}.
+    \item \textbf{DCA} : Robot terrestre avec dynamique de type \textit{singleIntegrator3D} (Il s'agit d'un Robotmaster S1).
     \item \textbf{Burger} : Véhicule terrestre avec dynamique de type \textit{unicycle}.
     \item \textbf{Waffle} : Robot terrestre avec dynamique de type \textit{unicycle}.
     \item \textbf{RMTT} : Drone avec dynamique de type \textit{singleIntegrator3D}.
